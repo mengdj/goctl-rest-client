@@ -1,0 +1,28 @@
+syntax = "v1"
+
+info(
+	title: "type title here"
+	desc: "type desc here"
+	author: "type author here"
+	email: "type email here"
+	version: "type version here"
+)
+
+type (
+	Response {
+		Code uint32 `json:"code"`
+		Msg  string `json:"msg"`
+	}
+	HelloRequest {
+		Msg string `json:"msg"`
+	}
+)
+
+@server(
+	group: exa
+	timeout: 30s
+)
+service demo_api {
+	@handler Hello
+	post /api/v1/app/demo/hello (HelloRequest) returns (Response)
+}

@@ -1,0 +1,28 @@
+syntax = "v1"
+
+info(
+	title: "type title here"
+	desc: "type desc here"
+	author: "type author here"
+	email: "type email here"
+	version: "type version here"
+)
+
+type (
+	Response {
+		Code uint32 `json:"code"`
+		Msg  string `json:"msg"`
+	}
+	HelloRequest {
+		ID uint64 `json:"id,optional" path:"id"` //系统方案ID
+	}
+)
+
+@server(
+	group: test
+	timeout: 30s
+)
+service test_api {
+	@handler Hello
+	get /api/v1/app/test/hello/:id (HelloRequest) returns (Response)
+}
