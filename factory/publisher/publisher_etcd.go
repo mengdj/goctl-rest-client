@@ -4,7 +4,7 @@
 // @date: 02/23/2023
 // @version:1.0.0
 // @author: mengdj<mengdj@outlook.com>
-package factory
+package publisher
 
 import (
 	"fmt"
@@ -20,7 +20,6 @@ type publisherEtcd struct {
 }
 
 func (r publisherEtcd) Start() {
-	//register
 	if err := r.publisher.KeepAlive(); nil != err {
 		logx.Errorf("keepalive error:%s", err.Error())
 	}
@@ -33,7 +32,7 @@ func (r publisherEtcd) Stop() {
 func NewPublisherEtcd(c conf.DiscoverServerConf) Publisher {
 	host := c.Host
 	if len(host) > 0 {
-		if AllEths == host {
+		if "0.0.0.0" == host {
 			host = netx.InternalIp()
 		}
 	}

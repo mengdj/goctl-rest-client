@@ -3,6 +3,7 @@ package generate
 import (
 	_ "embed"
 	"errors"
+	"github.com/urfave/cli/v2"
 	"os"
 	"path"
 
@@ -16,15 +17,19 @@ var (
 	clientTpl string
 )
 
-func Do(plugin *plugin.Plugin) error {
-	client := new(Client)
+func Do(plugin *plugin.Plugin, context *cli.Context, version string) error {
+	client := &Client{
+		Destination: context.String("destination"),
+		File:        context.String("file"),
+		Version:     version,
+		Package:     context.String("package"),
+	}
 	for _, tt := range plugin.Api.Types {
 		if target, ok := tt.(spec.DefineStruct); ok {
 			client.Type = append(client.Type, target)
 		} else {
 			return errors.New("can't support type")
 		}
-
 	}
 	for _, group := range plugin.Api.Service.Groups {
 		for _, route := range group.Routes {
@@ -39,9 +44,9 @@ func Do(plugin *plugin.Plugin) error {
 			})
 		}
 	}
-	dir := path.Join(plugin.Dir, "client")
+	dir := path.Join(plugin.Dir, client.Package)
 	if err := os.MkdirAll(dir, os.ModeDir|os.ModePerm); nil != err {
 		return err
 	}
-	return util.With("plugin").Parse(clientTpl).GoFmt(true).SaveTo(client, path.Join(dir, "client.go"), true)
+	return util.With("plugin").Parse(clientTpl).GoFmt(true).SaveTo(client, path.Join(dir, client.File), true)
 }

@@ -4,7 +4,7 @@
 // @date: 02/23/2023
 // @version:1.0.0
 // @author: mengdj<mengdj@outlook.com>
-package factory
+package publisher
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type publisherConsul struct {
 func (r publisherConsul) Start() {
 	host := r.cnf.Host
 	if len(host) > 0 {
-		if AllEths == host {
+		if "0.0.0.0" == host {
 			host = netx.InternalIp()
 		}
 	}

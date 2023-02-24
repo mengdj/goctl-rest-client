@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	version = "v0.0.5"
+	version = "v0.0.1"
 	author  = []*cli.Author{
 		&cli.Author{
 			Name:  "mengdj",
@@ -21,18 +21,31 @@ var (
 	commands = []*cli.Command{
 		{
 			Name:  "rest-client",
-			Usage: "generates rest-client factory",
+			Usage: "generates rest-client",
 			Action: func(context *cli.Context) error {
 				plugin, err := plugin.NewPlugin()
 				if nil != err {
 					return err
 				}
-				return generate.Do(plugin)
+				return generate.Do(plugin, context, version)
 			},
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:  "package",
-					Usage: "the package of rest-client",
+					Name:     "package",
+					Usage:    "the package of rest-client",
+					Value:    "client",
+					Required: false,
+				},
+				&cli.StringFlag{
+					Name:     "destination",
+					Usage:    "destination address,for example www.baidu.com or service",
+					Required: true,
+				},
+				&cli.StringFlag{
+					Name:     "file",
+					Usage:    "target file",
+					Required: false,
+					Value:    "client.go",
 				},
 			},
 		},

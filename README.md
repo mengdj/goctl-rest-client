@@ -43,7 +43,7 @@ goctl api go -api exa.api -dir . --style go_zero
 * 为api生成调用客户端(插件形式)
 
 ```shell
-goctl api plugin -p goctl-rest-discover="rest-discover" -api exa.api -dir .
+goctl api plugin -p goctl-rest-client="rest-client --package=client --destination=http://exa_api" -api exa.api -dir .
 ```
 
 * 调用(通过服务名称调用)

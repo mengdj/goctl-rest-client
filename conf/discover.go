@@ -8,11 +8,11 @@ import (
 
 type (
 	DiscoverClientConf struct {
-		Etcd      discov.EtcdConf `json:",optional"` //etcd
-		Consul    consul.Conf     //consul
-		Endpoints []string        `json:",optional"` //直连
-		TLS       bool            `json:",optional"`
-		Resolver  string          `json:"Resolver"` //resolver
+		Hosts    []string        `json:",optional"`
+		Etcd     discov.EtcdConf `json:",optional"` //etcd
+		Consul   consul.Conf     `json:",optional"` //consul
+		Resolver string          `json:"Resolver"`  //resolver[etcd,consul,endpoint]
+		TLS      bool            `json:",default=false"`
 	}
 	DiscoverServerConf struct {
 		rest.RestConf

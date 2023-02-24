@@ -2,6 +2,7 @@ package generate
 
 import "github.com/zeromicro/go-zero/tools/goctl/api/spec"
 
+//go:generate fieldalignment -fix v.go
 type (
 	Method struct {
 		Name     string
@@ -21,12 +22,16 @@ type (
 		Path         string
 		RequestName  string
 		ResponseName string
-		Comment      []string
 		Text         string
+		Comment      []string
 	}
 
 	Client struct {
-		Route []Route
-		Type  []spec.DefineStruct
+		Destination string
+		File        string
+		Version     string
+		Package     string
+		Route       []Route
+		Type        []spec.DefineStruct
 	}
 )

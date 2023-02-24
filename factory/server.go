@@ -2,32 +2,33 @@ package factory
 
 import (
 	"github.com/mengdj/goctl-rest-client/conf"
+	publisher2 "github.com/mengdj/goctl-rest-client/factory/publisher"
 	"github.com/zeromicro/go-zero/rest"
 )
 
 type RestDiscoverServer struct {
 	*rest.Server
 	config    conf.DiscoverServerConf
-	publisher Publisher
+	publisher publisher2.Publisher
 }
 
 func MustNewServer(c conf.DiscoverServerConf, opts ...rest.RunOption) *RestDiscoverServer {
-	var pub Publisher = nil
-	switch c.Resolver {
-	case "etcd":
-		pub = NewPublisherEtcd(c)
-		break
-	case "consul":
-		pub = NewPublisherConsul(c)
-		break
-	default:
-		break
-	}
-	return &RestDiscoverServer{
+	r := &RestDiscoverServer{
 		Server:    rest.MustNewServer(c.RestConf, opts...),
 		config:    c,
-		publisher: pub,
+		publisher: nil,
 	}
+	switch c.Resolver {
+	case "etcd":
+		r.publisher = publisher2.NewPublisherEtcd(c)
+		break
+	case "consul":
+		r.publisher = publisher2.NewPublisherConsul(c)
+	case "endpoint":
+		r.publisher = publisher2.NewPublisherConsul(c)
+		break
+	}
+	return r
 }
 
 func (r *RestDiscoverServer) Start() {
