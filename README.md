@@ -1,4 +1,4 @@
-# goctl-rest-discover
+# goctl-rest-client
 
 * api文件描述
 
