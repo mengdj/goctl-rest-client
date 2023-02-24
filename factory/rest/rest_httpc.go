@@ -8,6 +8,7 @@ package rest
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/jsonx"
 	"github.com/zeromicro/go-zero/rest/httpc"
 	"net/http"
 )
@@ -20,7 +21,20 @@ type (
 )
 
 func (rds restHttpc) Do(ctx context.Context, method, url string, data interface{}) (*http.Response, error) {
-	return rds.Service.Do(ctx, method, url, data)
+	var (
+		payload, _ = data.(RestPayload)
+		resp       *http.Response
+		err        error
+	)
+	if resp, err = rds.Service.Do(ctx, method, url, payload.Request); nil != err {
+		return nil, err
+	}
+	if nil != payload.Response {
+		if err = jsonx.UnmarshalFromReader(resp.Body, payload.Response); nil != err {
+			return nil, err
+		}
+	}
+	return resp, err
 }
 
 func (rds restHttpc) DoRequest(r *http.Request) (*http.Response, error) {

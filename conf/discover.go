@@ -21,7 +21,7 @@ type (
 		DiscoverClientConf
 	}
 	TransferConf struct {
-		Type  string    `json:",default=httpc"`
+		Type  string    `json:",default=httpc"` //httpc,resty
 		Rety  RertyConf `json:",optional"`
 		Httpc HttpcConf `json:",optional"`
 	}
@@ -30,6 +30,9 @@ type (
 	}
 
 	RertyConf struct {
-		Debug bool `json:",default=false"`
+		Agent                 string `json:",optional"`
+		AllowGetMethodPayload bool   `json:",default=false"`
+		Token                 string `json:",optional"`
+		Debug                 bool   `json:",default=false"`
 	}
 )

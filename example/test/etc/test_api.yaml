@@ -19,7 +19,9 @@ HelloDiscoverConf:
   TLS: false
   Resolver: consul
   Transfer:
-    Type: httc
+    Type: resty
+    Rety:
+      Debug: true
   Consul:
     Host: 127.0.0.1:8500 # consul endpoint
     Key: exa_api # service name registered to Consul

@@ -12,10 +12,7 @@ import (
 	"github.com/mengdj/goctl-rest-client/conf"
 	"github.com/mengdj/goctl-rest-client/factory/rest"
 	subscriber2 "github.com/mengdj/goctl-rest-client/factory/subscriber"
-	"github.com/pkg/errors"
-	"github.com/zeromicro/go-zero/core/jsonx"
 	"github.com/zeromicro/go-zero/rest/httpc"
-	"net/http"
 	"strings"
 	"sync"
 )
@@ -70,6 +67,7 @@ func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts .
 
 func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientConf, s httpc.Service) Client {
 	restDiscoverClientOnce.Do(func() {
+		//just once
 		restDiscoverClientInstance = &restDiscoverClient{
 			config:      c,
 			service:     s,
@@ -99,7 +97,6 @@ func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientC
 			break
 		}
 		if nil != restDiscoverClientInstance.subscriber {
-			//start service
 			restDiscoverClientInstance.subscriber.Start()
 		}
 	})
@@ -109,29 +106,30 @@ func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientC
 // Invoke invoke method
 func (f *restDiscoverClient) Invoke(ctx context.Context, method string, path string, data interface{}, result interface{}) error {
 	var (
-		host     = ""
-		response *http.Response
-		err      error
-		urls     strings.Builder
+		host = ""
+		err  error
+		urls strings.Builder
 	)
 	if host, err = f.subscriber.GetHost(); nil == err {
 		urls.WriteString(f.subscriber.Scheme())
 		urls.WriteString(host)
 		urls.WriteString(path)
 	} else {
-		//use param
+		//default
 		urls.WriteString(f.destination)
 		urls.WriteString(path)
 	}
-	if response, err = f.service.Do(ctx, strings.ToUpper(method), urls.String(), data); nil != err {
+	//execute
+	if _, err = f.service.Do(
+		ctx,
+		strings.ToUpper(method),
+		urls.String(),
+		rest.RestPayload{
+			Request:  data,
+			Response: result,
+		},
+	); nil != err {
 		return err
-	}
-	//200~226
-	if !(response.StatusCode >= http.StatusOK && response.StatusCode <= http.StatusIMUsed) {
-		return errors.New(response.Status)
-	}
-	if nil != result {
-		return jsonx.UnmarshalFromReader(response.Body, result)
 	}
 	return nil
 }
