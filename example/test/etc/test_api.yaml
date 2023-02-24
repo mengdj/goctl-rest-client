@@ -18,6 +18,8 @@ HelloDiscoverConf:
     InsecureSkipVerify: true
   TLS: false
   Resolver: consul
+  Transfer:
+    Type: httc
   Consul:
     Host: 127.0.0.1:8500 # consul endpoint
     Key: exa_api # service name registered to Consul

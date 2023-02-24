@@ -8,7 +8,9 @@ package factory
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/mengdj/goctl-rest-client/conf"
+	"github.com/mengdj/goctl-rest-client/factory/rest"
 	subscriber2 "github.com/mengdj/goctl-rest-client/factory/subscriber"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/jsonx"
@@ -49,8 +51,21 @@ func (f *restDiscoverClient) Close() error {
 	return nil
 }
 
-func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts ...RestDiscoverServiceOption) Client {
-	return NewRestDiscoverClientWithService(destination, c, NewRestDiscoverService(c.Etcd.Key, opts...))
+func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts ...rest.RestOption) Client {
+	var (
+		transfer httpc.Service = nil
+	)
+	if c.Name == "" {
+		//default
+		c.Name = uuid.NewString()
+	}
+	if c.Transfer.Type == "resty" {
+		transfer = rest.NewRestResty(c.Transfer, opts...)
+	} else {
+		//default
+		transfer = rest.NewRestHttpc(c.Name, opts...)
+	}
+	return NewRestDiscoverClientWithService(destination, c, transfer)
 }
 
 func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientConf, s httpc.Service) Client {

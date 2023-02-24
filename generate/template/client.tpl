@@ -49,7 +49,7 @@ type(
 //end
 
 // MustClient
-func MustClient(c conf.DiscoverClientConf,opts ...factory.RestDiscoverServiceOption) Client{
+func MustClient(c conf.DiscoverClientConf,opts ...factory.RestOption) Client{
     return &clientFactory{
         Client:factory.NewRestDiscoverClient("{{.Destination}}",c,opts...),
     }
