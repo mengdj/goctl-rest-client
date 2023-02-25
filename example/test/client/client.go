@@ -21,7 +21,8 @@ type (
 	}
 
 	HelloRequest struct {
-		ID uint64 `json:"id,optional" path:"id"` //系统方案ID
+		ID   uint64 `json:"id,optional" path:"id"` //系统方案ID
+		More string `json:",optional"`             //测试
 	}
 
 	// Client
@@ -68,6 +69,15 @@ func (t *HelloRequest) SetID(v uint64) *HelloRequest {
 
 func (t *HelloRequest) GetID() uint64 {
 	return t.ID
+}
+
+func (t *HelloRequest) SetMore(v string) *HelloRequest {
+	t.More = v
+	return t
+}
+
+func (t *HelloRequest) GetMore() string {
+	return t.More
 }
 
 // MustClient
