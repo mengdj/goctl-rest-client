@@ -17,8 +17,7 @@ import (
 type (
 	Response struct {
 		Code uint32 `json:"code"`
-
-		Msg string `json:"msg"`
+		Msg  string `json:"msg"`
 	}
 
 	HelloRequest struct {

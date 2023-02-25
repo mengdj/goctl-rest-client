@@ -22,6 +22,8 @@ HelloDiscoverConf:
     Type: resty
     Rety:
       Debug: true
+      Header:
+        agent: linux
   Consul:
     Host: 127.0.0.1:8500 # consul endpoint
     Key: exa_api # service name registered to Consul
