@@ -54,6 +54,7 @@ func (t *{{$elem.RawName}}) Reset(){
     *t={{$elem.RawName}}{}
 }
 {{range $elem.Members}}
+{{- if isPublic $elem.RawName}}
 {{if not .IsInline}}
 func (t *{{$elem.RawName}}) Set{{.Name}}(v {{.Type.RawName}}) *{{$elem.RawName}}{
     t.{{.Name}}=v
@@ -63,6 +64,7 @@ func (t *{{$elem.RawName}}) Set{{.Name}}(v {{.Type.RawName}}) *{{$elem.RawName}}
 func (t *{{$elem.RawName}}) Get{{.Name}}() {{.Type.RawName}}{
     return t.{{.Name}}
 }
+{{- end}}
 {{- end}}
 {{- end}}
 {{- end}}

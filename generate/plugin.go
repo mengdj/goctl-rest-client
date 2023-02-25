@@ -10,7 +10,6 @@ import (
 
 	"github.com/zeromicro/go-zero/tools/goctl/api/spec"
 	"github.com/zeromicro/go-zero/tools/goctl/plugin"
-	"github.com/zeromicro/go-zero/tools/goctl/util"
 )
 
 var (
@@ -52,5 +51,5 @@ func Do(plugin *plugin.Plugin, context *cli.Context) error {
 	if err := os.MkdirAll(dir, os.ModeDir|os.ModePerm); nil != err {
 		return err
 	}
-	return util.With("plugin").Parse(clientTpl).GoFmt(true).SaveTo(client, path.Join(dir, client.File), true)
+	return With("plugin").Parse(clientTpl).GoFmt(true).SaveTo(client, path.Join(dir, client.File), true)
 }

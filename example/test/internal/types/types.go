@@ -7,5 +7,6 @@ type Response struct {
 }
 
 type HelloRequest struct {
-	ID uint64 `json:"id,optional" path:"id"` //系统方案ID
+	ID   uint64 `json:"id,optional" path:"id"` //系统方案ID
+	More string `json:",optional"`             //测试
 }
