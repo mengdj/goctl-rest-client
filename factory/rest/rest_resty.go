@@ -12,11 +12,13 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/mengdj/goctl-rest-client/conf"
+	"github.com/mengdj/goctl-rest-client/factory"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/mapping"
 	"github.com/zeromicro/go-zero/rest/httpc"
 	"net/http"
 	nurl "net/url"
+	"time"
 )
 
 type (
@@ -96,10 +98,17 @@ func (rds *restResty) DoRequest(r *http.Request) (*http.Response, error) {
 	return nil, NotSupport
 }
 
-func NewRestResty(cnf conf.TransferConf, opts ...RestOption) httpc.Service {
+func NewRestResty(cnf conf.TransferConf, opts ...factory.RestOption) httpc.Service {
 	client := resty.New().SetDebug(cnf.Rety.Debug).SetAllowGetMethodPayload(cnf.Rety.AllowGetMethodPayload)
+	//init
 	if cnf.Rety.Token != "" {
 		client.SetAuthToken(cnf.Rety.Token)
+	}
+	if cnf.Rety.Timeout != 0 {
+		client.SetTimeout(time.Duration(cnf.Rety.Timeout))
+	}
+	if len(cnf.Rety.Header) > 0 {
+		client.SetHeaders(cnf.Rety.Header)
 	}
 	return &restResty{
 		client: client,

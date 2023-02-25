@@ -48,7 +48,7 @@ func (f *restDiscoverClient) Close() error {
 	return nil
 }
 
-func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts ...rest.RestOption) Client {
+func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts ...RestOption) Client {
 	var (
 		transfer httpc.Service = nil
 	)

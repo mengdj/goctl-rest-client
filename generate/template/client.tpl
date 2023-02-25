@@ -18,9 +18,9 @@ type(
     {{.RawName}} struct{
     {{if .Members}}
     {{if .Docs}} {{range .Docs}}
-    {{.}}
+    {{- . -}}
     {{- end}}{{- end}}
-    {{range .Members -}}
+    {{range .Members}}
         {{if .IsInline}}
             {{.Type.RawName}} {{if .Comment}}{{.Comment}}{{- end}}
         {{else}}
@@ -33,8 +33,8 @@ type(
 
     // Client
     Client interface{
-        {{range .Route -}}
-        {{range .Comment -}}
+        {{- range .Route -}}
+        {{- range .Comment -}}
         // {{.}}
         {{- end}}
         // {{.Handler}}
@@ -46,7 +46,25 @@ type(
         factory.Client
     }
 )
-//end
+
+{{- range $ind, $elem := .Type}}
+
+func (t *{{$elem.RawName}}) Reset(){
+    *t={{$elem.RawName}}{}
+}
+{{range $elem.Members}}
+{{if not .IsInline}}
+func (t *{{$elem.RawName}}) Set{{.Name}}(v {{.Type.RawName}}) *{{$elem.RawName}}{
+    t.{{.Name}}=v
+    return t
+}
+
+func (t *{{$elem.RawName}}) Get{{.Name}}() {{.Type.RawName}}{
+    return t.{{.Name}}
+}
+{{- end}}
+{{- end}}
+{{- end}}
 
 // MustClient
 func MustClient(c conf.DiscoverClientConf,opts ...factory.RestOption) Client{

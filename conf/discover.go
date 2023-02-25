@@ -30,9 +30,11 @@ type (
 	}
 
 	RertyConf struct {
-		Agent                 string `json:",optional"`
-		AllowGetMethodPayload bool   `json:",default=false"`
-		Token                 string `json:",optional"`
-		Debug                 bool   `json:",default=false"`
+		Agent                 string            `json:",optional"`
+		AllowGetMethodPayload bool              `json:",default=false"`
+		Token                 string            `json:",optional"`
+		Debug                 bool              `json:",default=false"`
+		Timeout               int64             `json:",default=0"`
+		Header                map[string]string `json:",optional"`
 	}
 )
