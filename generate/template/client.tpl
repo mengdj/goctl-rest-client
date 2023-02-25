@@ -7,6 +7,7 @@ import(
     "context"
     "github.com/mengdj/goctl-rest-client/conf"
     "github.com/mengdj/goctl-rest-client/factory"
+    "github.com/mengdj/goctl-rest-client/factory/rest"
 )
 //go:generate fieldalignment -fix {{.File}}
 //begin
@@ -20,8 +21,8 @@ type(
     {{if .Docs}} {{range .Docs}}
     {{- . -}}
     {{- end}}{{- end}}
-    {{range .Members}}
-        {{if .IsInline}}
+    {{- range .Members}}
+        {{- if .IsInline}}
             {{.Type.RawName}} {{if .Comment}}{{.Comment}}{{- end}}
         {{else}}
             {{.Name}} {{.Type.RawName}} {{if .Tag}}{{.Tag}}{{- end}} {{if .Comment}}{{.Comment}}{{- end}}
@@ -67,7 +68,7 @@ func (t *{{$elem.RawName}}) Get{{.Name}}() {{.Type.RawName}}{
 {{- end}}
 
 // MustClient
-func MustClient(c conf.DiscoverClientConf,opts ...factory.RestOption) Client{
+func MustClient(c conf.DiscoverClientConf,opts ...rest.RestOption) Client{
     return &clientFactory{
         Client:factory.NewRestDiscoverClient("{{.Destination}}",c,opts...),
     }

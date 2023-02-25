@@ -5,7 +5,7 @@
 // @date: 02/24/2023
 // @version:1.0.0
 // @author: mengdj<mengdj@outlook.com>
-package factory
+package rest
 
 type (
 	RestOption func(v interface{})

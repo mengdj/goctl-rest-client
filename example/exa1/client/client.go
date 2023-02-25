@@ -8,6 +8,7 @@ import (
 	"context"
 	"github.com/mengdj/goctl-rest-client/conf"
 	"github.com/mengdj/goctl-rest-client/factory"
+	"github.com/mengdj/goctl-rest-client/factory/rest"
 )
 
 // begin
@@ -19,7 +20,6 @@ type (
 	Response struct {
 
 		//aa
-
 		Code uint32 `json:"code"` //cc
 		Msg  string `json:"msg"`
 	}
@@ -27,13 +27,11 @@ type (
 	HelloRequest struct {
 
 		//xxx
-
 		Msg string `json:"msg"` //回显消息
 	}
 
 	// Client
 	Client interface {
-
 		// Hello
 		Hello(context.Context, *HelloRequest) (*Response, error)
 		Invoke(context.Context, string, string, interface{}, interface{}) error
@@ -43,10 +41,43 @@ type (
 	}
 )
 
-//end
+func (t *Response) Reset() {
+	*t = Response{}
+}
+
+func (t *Response) SetCode(v uint32) *Response {
+	t.Code = v
+	return t
+}
+
+func (t *Response) GetCode() uint32 {
+	return t.Code
+}
+
+func (t *Response) SetMsg(v string) *Response {
+	t.Msg = v
+	return t
+}
+
+func (t *Response) GetMsg() string {
+	return t.Msg
+}
+
+func (t *HelloRequest) Reset() {
+	*t = HelloRequest{}
+}
+
+func (t *HelloRequest) SetMsg(v string) *HelloRequest {
+	t.Msg = v
+	return t
+}
+
+func (t *HelloRequest) GetMsg() string {
+	return t.Msg
+}
 
 // MustClient
-func MustClient(c conf.DiscoverClientConf, opts ...factory.RestOption) Client {
+func MustClient(c conf.DiscoverClientConf, opts ...rest.RestOption) Client {
 	return &clientFactory{
 		Client: factory.NewRestDiscoverClient("exa_api", c, opts...),
 	}

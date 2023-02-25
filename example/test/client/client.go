@@ -8,6 +8,7 @@ import (
 	"context"
 	"github.com/mengdj/goctl-rest-client/conf"
 	"github.com/mengdj/goctl-rest-client/factory"
+	"github.com/mengdj/goctl-rest-client/factory/rest"
 )
 
 // begin
@@ -71,7 +72,7 @@ func (t *HelloRequest) GetID() uint64 {
 }
 
 // MustClient
-func MustClient(c conf.DiscoverClientConf, opts ...factory.RestOption) Client {
+func MustClient(c conf.DiscoverClientConf, opts ...rest.RestOption) Client {
 	return &clientFactory{
 		Client: factory.NewRestDiscoverClient("exa_api", c, opts...),
 	}

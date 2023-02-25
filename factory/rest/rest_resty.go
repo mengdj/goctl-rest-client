@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/mengdj/goctl-rest-client/conf"
-	"github.com/mengdj/goctl-rest-client/factory"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/mapping"
 	"github.com/zeromicro/go-zero/rest/httpc"
@@ -98,7 +97,7 @@ func (rds *restResty) DoRequest(r *http.Request) (*http.Response, error) {
 	return nil, NotSupport
 }
 
-func NewRestResty(cnf conf.TransferConf, opts ...factory.RestOption) httpc.Service {
+func NewRestResty(cnf conf.TransferConf, opts ...RestOption) httpc.Service {
 	client := resty.New().SetDebug(cnf.Rety.Debug).SetAllowGetMethodPayload(cnf.Rety.AllowGetMethodPayload)
 	//init
 	if cnf.Rety.Token != "" {

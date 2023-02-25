@@ -8,7 +8,6 @@ package rest
 
 import (
 	"context"
-	"github.com/mengdj/goctl-rest-client/factory"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"github.com/zeromicro/go-zero/rest/httpc"
 	"net/http"
@@ -42,7 +41,7 @@ func (rds restHttpc) DoRequest(r *http.Request) (*http.Response, error) {
 	return rds.Service.DoRequest(r)
 }
 
-func NewRestHttpc(name string, opts ...factory.RestOption) httpc.Service {
+func NewRestHttpc(name string, opts ...RestOption) httpc.Service {
 	return &restHttpc{
 		Service: httpc.NewServiceWithClient(name, http.DefaultClient),
 	}
