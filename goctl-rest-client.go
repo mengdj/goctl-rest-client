@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	version = "v0.0.2"
-	author  = []*cli.Author{
+	author = []*cli.Author{
 		&cli.Author{
 			Name:  "mengdj",
 			Email: "mengdj@outlook.com",
@@ -27,7 +26,7 @@ var (
 				if nil != err {
 					return err
 				}
-				return generate.Do(plugin, context, version)
+				return generate.Do(plugin, context)
 			},
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -56,7 +55,7 @@ func main() {
 	app := cli.NewApp()
 	app.Authors = author
 	app.Usage = "a plugin of goctl to generate rest-client"
-	app.Version = fmt.Sprintf("%s %s/%s", version, runtime.GOOS, runtime.GOARCH)
+	app.Version = fmt.Sprintf("%s %s/%s", generate.Version, runtime.GOOS, runtime.GOARCH)
 	app.Commands = commands
 	if err := app.Run(os.Args); err != nil {
 		fmt.Printf("goctl-rest-client: %+v\n", err)

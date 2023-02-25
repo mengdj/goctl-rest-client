@@ -124,7 +124,7 @@ func (f *restDiscoverClient) Invoke(ctx context.Context, method string, path str
 		ctx,
 		strings.ToUpper(method),
 		urls.String(),
-		rest.RestPayload{
+		&rest.RestPayload{
 			Request:  data,
 			Response: result,
 		},

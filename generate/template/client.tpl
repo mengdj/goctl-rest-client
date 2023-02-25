@@ -17,14 +17,14 @@ type(
     {{.}}
     {{- end}}
     {{.RawName}} struct{
-    {{if .Members}}
+    {{- if .Members}}
     {{if .Docs}} {{range .Docs}}
     {{- . -}}
     {{- end}}{{- end}}
     {{- range .Members}}
         {{- if .IsInline}}
             {{.Type.RawName}} {{if .Comment}}{{.Comment}}{{- end}}
-        {{else}}
+        {{- else}}
             {{.Name}} {{.Type.RawName}} {{if .Tag}}{{.Tag}}{{- end}} {{if .Comment}}{{.Comment}}{{- end}}
         {{- end}}
     {{- end}}
@@ -38,7 +38,7 @@ type(
         {{- range .Comment -}}
         // {{.}}
         {{- end}}
-        // {{.Handler}}
+        // {{.Handler}} {{.Text}}
         {{.Handler}}(context.Context{{if .RequestName}},*{{.RequestName}}{{- end}})(*{{.ResponseName}},error)
         {{- end}}
         Invoke(context.Context,string,string,interface{},interface{}) error

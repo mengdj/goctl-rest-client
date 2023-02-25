@@ -24,6 +24,8 @@ type (
 		ResponseName string
 		Text         string
 		Comment      []string
+		HandlerDoc   []string
+		Doc          spec.Doc
 	}
 
 	Client struct {
@@ -35,3 +37,5 @@ type (
 		Type        []spec.DefineStruct
 	}
 )
+
+const Version = "v0.0.2"

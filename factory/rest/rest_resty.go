@@ -42,7 +42,7 @@ var (
 
 func (rds *restResty) Do(ctx context.Context, method, url string, data interface{}) (*http.Response, error) {
 	var (
-		payload, _ = data.(RestPayload)
+		payload, _ = data.(*RestPayload)
 		rertyR     = rds.client.R().SetContext(ctx)
 		rertyP     *resty.Response
 		err        error
