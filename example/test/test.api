@@ -1,29 +1,12 @@
 syntax = "v1"
 
-info(
-	title: "type title here"
-	desc: "type desc here"
-	author: "type author here"
-	email: "type email here"
-	version: "type version here"
+info (
+	title: "rest client test"
+	author: "mengdj"
+	email: "mengdj@outlook.com"
 )
 
-type (
-	Response {
-		Code uint32 `json:"code"`
-		Msg  string `json:"msg"`
-	}
-	HelloRequest {
-		ID   uint64 `json:"id,optional" path:"id"` //系统方案ID
-		More string `json:",optional"`             //测试
-	}
+import(
+	"hello.api"
+	"world.api"
 )
-
-@server(
-	group: test
-	timeout: 30s
-)
-service test_api {
-	@handler Hello
-	get /api/v1/app/test/hello/:id (HelloRequest) returns (Response)
-}

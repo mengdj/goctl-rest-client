@@ -1,0 +1,11 @@
+syntax = "v1"
+type (
+    Response {
+        Code uint32 `json:"code"`
+        Msg  string `json:"msg"`
+    }
+    HelloRequest {
+        ID   uint64 `json:"id,optional" path:"id"` //系统方案ID
+        More string `json:",optional"`             //测试
+    }
+)

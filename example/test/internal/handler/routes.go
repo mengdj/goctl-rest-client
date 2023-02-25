@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	test "github.com/mengdj/goctl-rest-client/example/test/internal/handler/test"
+	hello "github.com/mengdj/goctl-rest-client/example/test/internal/handler/hello"
+	world "github.com/mengdj/goctl-rest-client/example/test/internal/handler/world"
 	"github.com/mengdj/goctl-rest-client/example/test/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -17,7 +18,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodGet,
 				Path:    "/api/v1/app/test/hello/:id",
-				Handler: test.HelloHandler(serverCtx),
+				Handler: hello.HelloHandler(serverCtx),
+			},
+		}, rest.WithTimeout(30000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/v1/app/test/world/:id",
+				Handler: world.HelloHandler(serverCtx),
 			},
 		}, rest.WithTimeout(30000*time.Millisecond),
 	)

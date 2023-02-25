@@ -11,4 +11,5 @@ require (
 	github.com/zeromicro/go-zero v1.4.4
 	github.com/zeromicro/go-zero/tools/goctl v1.4.4
 	github.com/zeromicro/zero-contrib/zrpc/registry/consul v0.0.0-20230212061721-86dbe4a9e613
+	golang.org/x/mod v0.7.0
 )

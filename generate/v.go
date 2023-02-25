@@ -29,13 +29,16 @@ type (
 	}
 
 	Client struct {
-		Destination string
-		File        string
-		Version     string
-		Package     string
-		Route       []Route
-		Type        []spec.DefineStruct
+		Destination  string
+		File         string
+		Version      string
+		Package      string
+		GroupPackage string
+		Route        []Route
+		Type         []spec.DefineStruct
+		Pkg          string
+		Date         string
 	}
 )
 
-const Version = "v0.0.2"
+const Version = "v0.0.3"

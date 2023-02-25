@@ -1,0 +1,12 @@
+syntax = "v1"
+import(
+    "types.api"
+)
+@server(
+    group: hello
+    timeout: 30s
+)
+service test_api {
+    @handler Hello
+    get /api/v1/app/test/hello/:id (HelloRequest) returns (Response)
+}
