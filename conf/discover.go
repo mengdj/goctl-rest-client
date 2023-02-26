@@ -21,20 +21,21 @@ type (
 		DiscoverClientConf
 	}
 	TransferConf struct {
-		Type  string    `json:",default=httpc"` //httpc,resty
-		Rety  RertyConf `json:",optional"`
+		Type  string    `json:",default=resty"` //httpc,resty
+		Resty RestyConf `json:",optional"`
 		Httpc HttpcConf `json:",optional"`
 	}
 
 	HttpcConf struct {
 	}
 
-	RertyConf struct {
-		Agent                 string            `json:",optional"`
+	RestyConf struct {
+		Agent                 string            `json:",optional"` //浏览器代理
 		AllowGetMethodPayload bool              `json:",default=false"`
 		Token                 string            `json:",optional"`
 		Debug                 bool              `json:",default=false"`
 		Timeout               int64             `json:",default=0"`
 		Header                map[string]string `json:",optional"`
+		Trace                 bool              `json:",default=false"`
 	}
 )

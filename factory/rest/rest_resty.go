@@ -12,8 +12,14 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/mengdj/goctl-rest-client/conf"
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/breaker"
 	"github.com/zeromicro/go-zero/core/mapping"
 	"github.com/zeromicro/go-zero/rest/httpc"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/propagation"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"net/http"
 	nurl "net/url"
 	"time"
@@ -22,6 +28,8 @@ import (
 type (
 	restResty struct {
 		client *resty.Client
+		name   string
+		trace  bool
 	}
 )
 
@@ -32,6 +40,8 @@ const (
 	jsonKey   = "json"
 	slash     = "/"
 	colon     = ':'
+
+	traceName = "gozero-rest-client"
 )
 
 var (
@@ -44,30 +54,26 @@ func (rds *restResty) Do(ctx context.Context, method, url string, data interface
 		payload, _ = data.(*RestPayload)
 		rertyR     = rds.client.R().SetContext(ctx)
 		rertyP     *resty.Response
-		err        error
+		err, errx  error
 		purl       *nurl.URL
 		val        map[string]map[string]interface{}
+		span       oteltrace.Span
 	)
 	if purl, err = nurl.Parse(url); err != nil {
-		//parse url
 		return nil, err
 	}
 	if payload.Request != nil {
-		//parse request
 		if val, err = mapping.Marshal(payload.Request); err != nil {
 			return nil, err
 		}
-		//path
 		if pv, ok := val[pathKey]; ok {
 			if err = fillPath(purl, pv); err != nil {
 				return nil, err
 			}
 		}
-		//form
 		if fv := buildFormQuery(purl, val[formKey]); len(fv) > 0 {
 			rertyR.SetFormDataFromValues(fv)
 		}
-		//body
 		if jv, ok := val[jsonKey]; ok {
 			if method == http.MethodGet {
 				return nil, ErrGetWithBody
@@ -75,19 +81,46 @@ func (rds *restResty) Do(ctx context.Context, method, url string, data interface
 			rertyR.SetBody(jv)
 			rertyR.SetHeader(ContentType, JsonContentType)
 		}
-		//header
 		if hv, ok := val[headerKey]; ok {
 			for k, v := range hv {
 				rertyR.SetHeader(k, fmt.Sprint(v))
 			}
 		}
-		//result
 		if nil != payload.Response {
 			rertyR.SetResult(payload.Response)
 		}
 	}
-	if rertyP, err = rertyR.Execute(method, purl.String()); nil != err {
-		return nil, err
+	if rds.trace {
+		//链路跟踪
+		ctx, span = otel.Tracer(traceName).Start(
+			ctx,
+			url,
+			oteltrace.WithSpanKind(oteltrace.SpanKindClient),
+		)
+		defer span.End()
+		otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(rertyR.Header))
+	}
+	//熔断
+	if errx = breaker.GetBreaker(rds.name).DoWithAcceptable(func() error {
+		if rertyP, err = rertyR.Execute(method, purl.String()); nil != err {
+			return err
+		}
+		return nil
+	}, func(err error) bool {
+		if nil != err {
+			return false
+		}
+		return rertyP.StatusCode() < http.StatusInternalServerError
+	}); nil != errx {
+		if rds.trace {
+			span.RecordError(errx)
+			span.SetStatus(codes.Error, errx.Error())
+		}
+		return nil, errx
+	}
+	if rds.trace {
+		span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(rertyP.StatusCode())...)
+		span.SetStatus(semconv.SpanStatusFromHTTPStatusCodeAndSpanKind(rertyP.StatusCode(), oteltrace.SpanKindClient))
 	}
 	return rertyP.RawResponse, nil
 }
@@ -96,19 +129,63 @@ func (rds *restResty) DoRequest(r *http.Request) (*http.Response, error) {
 	return nil, NotSupport
 }
 
-func NewRestResty(cnf conf.TransferConf, opts ...RestOption) httpc.Service {
-	client := resty.New().SetDebug(cnf.Rety.Debug).SetAllowGetMethodPayload(cnf.Rety.AllowGetMethodPayload)
+func NewRestResty(name string, cnf conf.TransferConf, opts ...RestOption) httpc.Service {
+	r := &restResty{
+		client: resty.New().SetDebug(cnf.Resty.Debug).SetAllowGetMethodPayload(cnf.Resty.AllowGetMethodPayload),
+		name:   name,
+	}
 	//init
-	if cnf.Rety.Token != "" {
-		client.SetAuthToken(cnf.Rety.Token)
+	if cnf.Resty.Token != "" {
+		r.client.SetAuthToken(cnf.Resty.Token)
 	}
-	if cnf.Rety.Timeout != 0 {
-		client.SetTimeout(time.Duration(cnf.Rety.Timeout))
+	if cnf.Resty.Timeout != 0 {
+		r.client.SetTimeout(time.Duration(cnf.Resty.Timeout))
 	}
-	if len(cnf.Rety.Header) > 0 {
-		client.SetHeaders(cnf.Rety.Header)
+	if len(cnf.Resty.Header) > 0 {
+		r.client.SetHeaders(cnf.Resty.Header)
 	}
-	return &restResty{
-		client: client,
+	for _, opt := range opts {
+		opt(r)
+	}
+	return r
+}
+
+func WithRestyErrorHook(hook resty.ErrorHook) RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(*restResty); ok {
+			target.client.OnError(hook)
+		}
+	}
+}
+
+func WithRestyBeforeRequest(req resty.RequestMiddleware) RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(*restResty); ok {
+			target.client.OnBeforeRequest(req)
+		}
+	}
+}
+
+func WithDisableWarn(dis bool) RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(*restResty); ok {
+			target.client.SetDisableWarn(dis)
+		}
+	}
+}
+
+func WithTrace(trace bool) RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(*restResty); ok {
+			target.trace = trace
+		}
+	}
+}
+
+func WithRestyAfterResponse(resp resty.ResponseMiddleware) RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(*restResty); ok {
+			target.client.OnAfterResponse(resp)
+		}
 	}
 }
