@@ -57,6 +57,8 @@ func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts .
 	}
 	if c.Transfer.Type == "resty" {
 		transfer = rest.NewRestResty(c.Name, c.Transfer, opts...)
+	} else if c.Transfer.Type == "fasthttp" {
+		transfer = rest.NewRestFastHttp(c.Name, c.Transfer, opts...)
 	} else {
 		//default
 		transfer = rest.NewRestHttpc(c.Name, opts...)

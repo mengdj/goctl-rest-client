@@ -19,10 +19,13 @@ HelloDiscoverConf:
   TLS: false
   Resolver: consul
   Transfer:
-    Type: resty
+    Type: fasthttp
     Resty:
       Debug: true
       Trace: true
+      Header:
+        agent: linux
+    Fasthttp:
       Header:
         agent: linux
   Consul:

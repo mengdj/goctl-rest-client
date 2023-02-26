@@ -21,14 +21,16 @@ type (
 		DiscoverClientConf
 	}
 	TransferConf struct {
-		Type  string    `json:",default=resty"` //httpc,resty
-		Resty RestyConf `json:",optional"`
-		Httpc HttpcConf `json:",optional"`
+		Type     string       `json:",default=fasthttp"` //httpc,resty
+		Resty    RestyConf    `json:",optional"`
+		Fasthttp FastHttpConf `json:",optional"`
 	}
 
 	HttpcConf struct {
 	}
-
+	FastHttpConf struct {
+		Header map[string]string `json:",optional"`
+	}
 	RestyConf struct {
 		Agent                 string            `json:",optional"` //浏览器代理
 		AllowGetMethodPayload bool              `json:",default=false"`

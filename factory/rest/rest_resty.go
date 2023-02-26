@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/mengdj/goctl-rest-client/conf"
-	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/breaker"
 	"github.com/zeromicro/go-zero/core/mapping"
 	"github.com/zeromicro/go-zero/rest/httpc"
@@ -42,11 +41,6 @@ const (
 	colon     = ':'
 
 	traceName = "gozero-rest-client"
-)
-
-var (
-	NotSupport     = errors.New("Not Support")
-	ErrGetWithBody = errors.New("HTTP GET should not have body")
 )
 
 func (rds *restResty) Do(ctx context.Context, method, url string, data interface{}) (*http.Response, error) {

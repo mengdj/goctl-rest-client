@@ -6,7 +6,14 @@
 // @author: mengdj<mengdj@outlook.com>
 package rest
 
+import "github.com/pkg/errors"
+
 type (
 	// RestOption any
 	RestOption func(v interface{})
+)
+
+var (
+	NotSupport     = errors.New("Not Support")
+	ErrGetWithBody = errors.New("HTTP GET should not have body")
 )
