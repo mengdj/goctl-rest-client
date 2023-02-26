@@ -83,7 +83,8 @@ func Do(plugin *plugin.Plugin, context *cli.Context) error {
 		return err
 	}
 	//parse package
-	client.Pkg = module + path.Join(strings.ReplaceAll(plugin.Dir, moduleDir, ""), client.Package)
+	// windows=\\
+	client.Pkg = module + path.Join(strings.ReplaceAll(strings.ReplaceAll(plugin.Dir, moduleDir, ""), "\\", "/"), client.Package)
 	return mr.Finish(func() error {
 		//build types
 		for i := 0; i < typeSize; i++ {
