@@ -49,7 +49,7 @@ func (cf *clientFactory) Invoke(ctx context.Context,method string,path string,en
 // {{.Handler}} {{.Text}}
 func (cf *clientFactory) {{.Handler}}(ctx context.Context{{if .RequestName}},entity *{{$.Package}}.{{.RequestName}}{{- end}})(resp *{{$.Package}}.{{.ResponseName}},err error){
     resp=new({{$.Package}}.{{.ResponseName}})
-    err=cf.Invoke(ctx,"{{.Method}}","{{.Path}}",{{if .RequestName}}entity{{else}}nil{{- end}},resp)
+    err=cf.Invoke(ctx,"{{ toUpper .Method }}","{{.Path}}",{{if .RequestName}}entity{{else}}nil{{- end}},resp)
     if nil!=err{
         return nil,err
     }

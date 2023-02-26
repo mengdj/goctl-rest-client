@@ -122,7 +122,7 @@ func (f *restDiscoverClient) Invoke(ctx context.Context, method string, path str
 	//execute
 	if _, err = f.service.Do(
 		ctx,
-		strings.ToUpper(method),
+		method,
 		urls.String(),
 		&rest.RestPayload{
 			Request:  data,

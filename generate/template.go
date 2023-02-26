@@ -12,6 +12,7 @@ import (
 	"github.com/zeromicro/go-zero/tools/goctl/util/pathx"
 	goformat "go/format"
 	"os"
+	"strings"
 	"text/template"
 	"unicode"
 )
@@ -68,7 +69,12 @@ func (t *DefaultTemplate) Execute(data interface{}) (*bytes.Buffer, error) {
 		formatOutput []byte
 	)
 	if tem, err = template.New(t.name).Funcs(template.FuncMap{
-		"isPublic": func(str string) bool { return unicode.IsUpper(rune(str[0])) },
+		"isPublic": func(str string) bool {
+			return unicode.IsUpper(rune(str[0]))
+		},
+		"toUpper": func(str string) string {
+			return strings.ToUpper(str)
+		},
 	}).Parse(t.text); err != nil {
 		return nil, errors.Wrapf(err, "template parse error:", t.text)
 	}
