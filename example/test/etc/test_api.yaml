@@ -20,8 +20,9 @@ HelloDiscoverConf:
   Resolver: consul
   Transfer:
     Type: resty
-    Rety:
+    Resty:
       Debug: true
+      Trace: true
       Header:
         agent: linux
   Consul:

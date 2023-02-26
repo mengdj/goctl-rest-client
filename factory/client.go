@@ -25,8 +25,7 @@ type Client interface {
 }
 
 type (
-	restDiscoverClientOption func(*restDiscoverClient)
-	restDiscoverClient       struct {
+	restDiscoverClient struct {
 		config      conf.DiscoverClientConf
 		base        []string
 		service     httpc.Service
@@ -57,7 +56,7 @@ func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts .
 		c.Name = uuid.NewString()
 	}
 	if c.Transfer.Type == "resty" {
-		transfer = rest.NewRestResty(c.Transfer, opts...)
+		transfer = rest.NewRestResty(c.Name, c.Transfer, opts...)
 	} else {
 		//default
 		transfer = rest.NewRestHttpc(c.Name, opts...)
@@ -88,6 +87,7 @@ func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientC
 			restDiscoverClientInstance.subscriber = subscriber2.NewSubscriberConsul(c)
 			break
 		case "endpoint":
+			//直连
 			if 0 == len(c.Hosts) {
 				c.Hosts = []string{
 					destination,
