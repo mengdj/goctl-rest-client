@@ -22,7 +22,7 @@ type (
 
 func (rds restHttpc) Do(ctx context.Context, method, url string, data interface{}) (*http.Response, error) {
 	var (
-		payload, _ = data.(RestPayload)
+		payload, _ = data.(*RestPayload)
 		resp       *http.Response
 		err        error
 	)

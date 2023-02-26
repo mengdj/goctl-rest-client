@@ -97,18 +97,45 @@ func (rds *restResty) DoRequest(r *http.Request) (*http.Response, error) {
 }
 
 func NewRestResty(cnf conf.TransferConf, opts ...RestOption) httpc.Service {
-	client := resty.New().SetDebug(cnf.Rety.Debug).SetAllowGetMethodPayload(cnf.Rety.AllowGetMethodPayload)
+	r := &restResty{
+		client: resty.New().SetDebug(cnf.Rety.Debug).SetAllowGetMethodPayload(cnf.Rety.AllowGetMethodPayload),
+	}
 	//init
 	if cnf.Rety.Token != "" {
-		client.SetAuthToken(cnf.Rety.Token)
+		r.client.SetAuthToken(cnf.Rety.Token)
 	}
 	if cnf.Rety.Timeout != 0 {
-		client.SetTimeout(time.Duration(cnf.Rety.Timeout))
+		r.client.SetTimeout(time.Duration(cnf.Rety.Timeout))
 	}
 	if len(cnf.Rety.Header) > 0 {
-		client.SetHeaders(cnf.Rety.Header)
+		r.client.SetHeaders(cnf.Rety.Header)
 	}
-	return &restResty{
-		client: client,
+	for _, opt := range opts {
+		opt(r)
+	}
+	return r
+}
+
+func WithRestyErrorHook(hook resty.ErrorHook) RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(*restResty); ok {
+			target.client.OnError(hook)
+		}
+	}
+}
+
+func WithRestyBeforeRequest(req resty.RequestMiddleware) RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(*restResty); ok {
+			target.client.OnBeforeRequest(req)
+		}
+	}
+}
+
+func WithRestyAfterResponse(resp resty.ResponseMiddleware) RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(*restResty); ok {
+			target.client.OnAfterResponse(resp)
+		}
 	}
 }

@@ -7,5 +7,6 @@
 package rest
 
 type (
+	// RestOption any
 	RestOption func(v interface{})
 )
