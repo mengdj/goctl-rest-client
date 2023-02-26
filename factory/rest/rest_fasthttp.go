@@ -31,6 +31,9 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, data interface
 		body       []byte
 	)
 	defer func() {
+		//clear
+		request.Reset()
+		response.Reset()
 		fasthttp.ReleaseRequest(request)
 		fasthttp.ReleaseResponse(response)
 	}()
