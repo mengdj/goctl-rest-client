@@ -14,35 +14,38 @@ import (
 )
 
 type (
-	HttpcBeforeRequest func(ctx context.Context, url string, data interface{}) (interface{}, error)
+	//before hook
+	HttpcBeforeRequest func(ctx context.Context, url string, req interface{}) (interface{}, error)
 	restHttpc          struct {
 		httpc.Service
 		beforeRequest HttpcBeforeRequest
 	}
 )
 
-func (rds *restHttpc) Do(ctx context.Context, method, url string, data interface{}) (*http.Response, error) {
+func (rds *restHttpc) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
 	var (
-		payload, _ = data.(*RestPayload)
-		resp       *http.Response
-		err        error
+		response *http.Response
+		err      error
 	)
 	if nil != rds.Service {
 		//before
-		if payload.Request, err = rds.beforeRequest(ctx, url, data); nil != err {
+		if req, err = rds.beforeRequest(ctx, url, req); nil != err {
 			return nil, err
 		}
 	}
-	if resp, err = rds.Service.Do(ctx, method, url, payload.Request); nil != err {
+	if response, err = rds.Service.Do(ctx, method, url, req); nil != err {
 		return nil, err
 	}
-	if nil != payload.Response {
+	if nil != resp {
 		//json
-		if err = jsonx.UnmarshalFromReader(resp.Body, payload.Response); nil != err {
+		if err = jsonx.UnmarshalFromReader(response.Body, resp); nil != err {
 			return nil, err
 		}
 	}
-	return resp, err
+	return &RestResponse{
+		StatusCode: response.StatusCode,
+		Status:     response.Status,
+	}, err
 }
 
 func (rds *restHttpc) DoRequest(r *http.Request) (*http.Response, error) {
@@ -56,7 +59,7 @@ func WithHttpcBeforeRequest(fn HttpcBeforeRequest) RestOption {
 		}
 	}
 }
-func NewRestHttpc(name string, opts ...RestOption) httpc.Service {
+func NewRestHttpc(name string, opts ...RestOption) RestService {
 	r := &restHttpc{
 		Service:       httpc.NewServiceWithClient(name, http.DefaultClient),
 		beforeRequest: nil,

@@ -12,7 +12,6 @@ import (
 	"github.com/mengdj/goctl-rest-client/conf"
 	"github.com/mengdj/goctl-rest-client/factory/rest"
 	subscriber2 "github.com/mengdj/goctl-rest-client/factory/subscriber"
-	"github.com/zeromicro/go-zero/rest/httpc"
 	"strings"
 	"sync"
 )
@@ -28,7 +27,7 @@ type (
 	restDiscoverClient struct {
 		config      conf.DiscoverClientConf
 		base        []string
-		service     httpc.Service
+		service     rest.RestService
 		rwMutex     sync.RWMutex
 		subscriber  subscriber2.Subscriber
 		destination string
@@ -49,7 +48,7 @@ func (f *restDiscoverClient) Close() error {
 
 func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts ...rest.RestOption) Client {
 	var (
-		transfer httpc.Service = nil
+		transfer rest.RestService = nil
 	)
 	if c.Name == "" {
 		//default
@@ -66,7 +65,7 @@ func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts .
 	return NewRestDiscoverClientWithService(destination, c, transfer)
 }
 
-func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientConf, s httpc.Service) Client {
+func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientConf, s rest.RestService) Client {
 	restDiscoverClientOnce.Do(func() {
 		//just once
 		restDiscoverClientInstance = &restDiscoverClient{
@@ -126,10 +125,8 @@ func (f *restDiscoverClient) Invoke(ctx context.Context, method string, path str
 		ctx,
 		method,
 		urls.String(),
-		&rest.RestPayload{
-			Request:  data,
-			Response: result,
-		},
+		data,
+		result,
 	); nil != err {
 		return err
 	}

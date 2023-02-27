@@ -13,7 +13,6 @@ import (
 	"github.com/mengdj/goctl-rest-client/conf"
 	"github.com/zeromicro/go-zero/core/breaker"
 	"github.com/zeromicro/go-zero/core/mapping"
-	"github.com/zeromicro/go-zero/rest/httpc"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
@@ -43,21 +42,20 @@ const (
 	traceName = "gozero-rest-client"
 )
 
-func (rds *restResty) Do(ctx context.Context, method, url string, data interface{}) (*http.Response, error) {
+func (rds *restResty) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
 	var (
-		payload, _ = data.(*RestPayload)
-		rertyR     = rds.client.R().SetContext(ctx)
-		rertyP     *resty.Response
-		err, errx  error
-		purl       *nurl.URL
-		val        map[string]map[string]interface{}
-		span       oteltrace.Span
+		rertyR    = rds.client.R().SetContext(ctx)
+		rertyP    *resty.Response
+		err, errx error
+		purl      *nurl.URL
+		val       map[string]map[string]interface{}
+		span      oteltrace.Span
 	)
 	if purl, err = nurl.Parse(url); err != nil {
 		return nil, err
 	}
-	if payload.Request != nil {
-		if val, err = mapping.Marshal(payload.Request); err != nil {
+	if req != nil {
+		if val, err = mapping.Marshal(req); err != nil {
 			return nil, err
 		}
 		if pv, ok := val[pathKey]; ok {
@@ -80,8 +78,8 @@ func (rds *restResty) Do(ctx context.Context, method, url string, data interface
 				rertyR.SetHeader(k, fmt.Sprint(v))
 			}
 		}
-		if nil != payload.Response {
-			rertyR.SetResult(payload.Response)
+		if nil != resp {
+			rertyR.SetResult(resp)
 		}
 	}
 	if rds.trace {
@@ -116,14 +114,17 @@ func (rds *restResty) Do(ctx context.Context, method, url string, data interface
 		span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(rertyP.StatusCode())...)
 		span.SetStatus(semconv.SpanStatusFromHTTPStatusCodeAndSpanKind(rertyP.StatusCode(), oteltrace.SpanKindClient))
 	}
-	return rertyP.RawResponse, nil
+	return &RestResponse{
+		StatusCode: rertyP.StatusCode(),
+		Status:     rertyP.Status(),
+	}, nil
 }
 
 func (rds *restResty) DoRequest(r *http.Request) (*http.Response, error) {
 	return nil, NotSupport
 }
 
-func NewRestResty(name string, cnf conf.TransferConf, opts ...RestOption) httpc.Service {
+func NewRestResty(name string, cnf conf.TransferConf, opts ...RestOption) RestService {
 	r := &restResty{
 		client: resty.New().SetDebug(cnf.Resty.Debug).SetAllowGetMethodPayload(cnf.Resty.AllowGetMethodPayload),
 		name:   name,

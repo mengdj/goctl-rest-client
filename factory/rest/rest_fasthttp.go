@@ -8,7 +8,6 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"github.com/zeromicro/go-zero/core/mapping"
-	"github.com/zeromicro/go-zero/rest/httpc"
 	"net/http"
 	nurl "net/url"
 	"time"
@@ -20,15 +19,14 @@ type restFastHttp struct {
 	cnf    conf.FastHttpConf
 }
 
-func (r restFastHttp) Do(ctx context.Context, method, url string, data interface{}) (*http.Response, error) {
+func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
 	var (
-		request    = fasthttp.AcquireRequest()
-		response   = fasthttp.AcquireResponse()
-		payload, _ = data.(*RestPayload)
-		err        error
-		purl       *nurl.URL
-		val        map[string]map[string]interface{}
-		body       []byte
+		request  = fasthttp.AcquireRequest()
+		response = fasthttp.AcquireResponse()
+		err      error
+		purl     *nurl.URL
+		val      map[string]map[string]interface{}
+		body     []byte
 	)
 	defer func() {
 		//clear
@@ -47,8 +45,8 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, data interface
 			request.Header.Set(k, v)
 		}
 	}
-	if payload.Request != nil {
-		if val, err = mapping.Marshal(payload.Request); err != nil {
+	if req != nil {
+		if val, err = mapping.Marshal(req); err != nil {
 			return nil, err
 		}
 		if pv, ok := val[pathKey]; ok {
@@ -84,24 +82,13 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, data interface
 		return nil, err
 	}
 	body = response.Body()
-	if nil != payload.Response {
-		if err = jsonx.Unmarshal(body, payload.Response); nil != err {
+	if nil != resp {
+		if err = jsonx.Unmarshal(body, resp); nil != err {
 			return nil, err
 		}
 	}
-	return &http.Response{
-		StatusCode:       response.StatusCode(),
-		Proto:            string(response.Header.Protocol()),
-		ProtoMajor:       1,
-		ProtoMinor:       0,
-		Header:           nil,
-		ContentLength:    int64(response.Header.ContentLength()),
-		TransferEncoding: nil,
-		Close:            response.ConnectionClose(),
-		Uncompressed:     false,
-		Trailer:          nil,
-		Request:          nil,
-		TLS:              nil,
+	return &RestResponse{
+		StatusCode: response.StatusCode(),
 	}, nil
 }
 
@@ -109,7 +96,7 @@ func (r restFastHttp) DoRequest(req *http.Request) (*http.Response, error) {
 	return nil, NotSupport
 }
 
-func NewRestFastHttp(name string, cnf conf.TransferConf, opts ...RestOption) httpc.Service {
+func NewRestFastHttp(name string, cnf conf.TransferConf, opts ...RestOption) RestService {
 	//init
 	dial := &fasthttp.TCPDialer{
 		Concurrency:      4096,      // 最大并发数，0表示无限制
