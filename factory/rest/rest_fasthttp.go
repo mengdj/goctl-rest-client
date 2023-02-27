@@ -14,9 +14,10 @@ import (
 )
 
 type restFastHttp struct {
-	name   string
-	client *fasthttp.Client
-	cnf    conf.FastHttpConf
+	name    string
+	client  *fasthttp.Client
+	cnf     conf.FastHttpConf
+	retryIf fasthttp.RetryIfFunc
 }
 
 func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
@@ -97,24 +98,38 @@ func (r restFastHttp) DoRequest(req *http.Request) (*http.Response, error) {
 	return nil, NotSupport
 }
 
+func WithRetryIf(fn fasthttp.RetryIfFunc) RestOption {
+	return func(v interface{}) {
+		if vv, ok := v.(*restFastHttp); ok {
+			vv.retryIf = fn
+		}
+	}
+}
 func NewRestFastHttp(name string, cnf conf.TransferConf, opts ...RestOption) RestService {
 	//init
 	dial := &fasthttp.TCPDialer{
-		Concurrency:      4096,      // 最大并发数，0表示无限制
-		DNSCacheDuration: time.Hour, // 将 DNS 缓存时间从默认分钟增加到一小时
+		Concurrency:      cnf.Fasthttp.TCPDialer.Concurrency,                                   //
+		DNSCacheDuration: time.Duration(cnf.Fasthttp.TCPDialer.DNSCacheDuration) * time.Second, //
 	}
 	r := &restFastHttp{
 		cnf:  cnf.Fasthttp,
 		name: name,
-		client: &fasthttp.Client{
-			Name:                name,
-			Dial:                dial.Dial,
-			ReadTimeout:         time.Duration(cnf.Fasthttp.ReadTimeout) * time.Second,
-			MaxConnWaitTimeout:  time.Duration(cnf.Fasthttp.MaxConnWaitTimeout) * time.Second,
-			WriteTimeout:        time.Duration(cnf.Fasthttp.WriteTimeout) * time.Second,
-			MaxConnDuration:     time.Duration(cnf.Fasthttp.MaxConnDuration) * time.Second,
-			MaxIdleConnDuration: time.Duration(cnf.Fasthttp.MaxIdleConnDuration) * time.Second,
-			TLSConfig:           &tls.Config{InsecureSkipVerify: true},
+	}
+	r.client = &fasthttp.Client{
+		Name:                name,
+		Dial:                dial.Dial,
+		ReadTimeout:         time.Duration(cnf.Fasthttp.ReadTimeout) * time.Second,
+		MaxConnWaitTimeout:  time.Duration(cnf.Fasthttp.MaxConnWaitTimeout) * time.Second,
+		WriteTimeout:        time.Duration(cnf.Fasthttp.WriteTimeout) * time.Second,
+		MaxConnDuration:     time.Duration(cnf.Fasthttp.MaxConnDuration) * time.Second,
+		MaxIdleConnDuration: time.Duration(cnf.Fasthttp.MaxIdleConnDuration) * time.Second,
+		TLSConfig:           &tls.Config{InsecureSkipVerify: true},
+		RetryIf: func(request *fasthttp.Request) bool {
+			if nil != r.retryIf {
+				return r.retryIf(request)
+			}
+			//default
+			return false
 		},
 	}
 	for _, opt := range opts {

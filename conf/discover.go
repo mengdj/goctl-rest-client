@@ -38,6 +38,10 @@ type (
 		WriteTimeout        int               `json:",default=0"`
 		MaxConnDuration     int               `json:",default=0"`
 		MaxIdleConnDuration int               `json:",default=0"`
+		TCPDialer           struct {
+			Concurrency      int   `json:",default=64"`   //Concurrency
+			DNSCacheDuration int64 `json:",default=1800"` //DNSCacheDuration
+		} `json:",optional"`
 	}
 	RestyConf struct {
 		Header                map[string]string `json:",optional"`
