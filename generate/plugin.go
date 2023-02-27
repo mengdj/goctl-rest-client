@@ -1,11 +1,15 @@
 package generate
 
 import (
+	"context"
 	_ "embed"
+	"encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"github.com/zeromicro/go-zero/core/mr"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
@@ -24,6 +28,31 @@ var (
 	goMod    = "go.mod"
 	notFound = errors.New("not found go.mod")
 )
+
+func foundPkgFromCommand(ctx context.Context, path string) (string /*dir*/, string /*mod*/, error) {
+	var (
+		cmd = []*exec.Cmd{
+			//set env
+			exec.CommandContext(ctx, "go", "env", "-w", "GO111MODULE=auto"),
+			exec.CommandContext(ctx, "go", "list", "-json", "-m"),
+		}
+		body   []byte
+		err    error
+		result *JSONListResult = nil
+	)
+	for _, c := range cmd {
+		c.Dir = filepath.Dir(path)
+		if body, err = c.CombinedOutput(); err != nil {
+			return "", "", errors.Wrapf(err, string(body))
+		}
+	}
+	//parse
+	result = &JSONListResult{}
+	if err = json.Unmarshal(body, result); nil != err {
+		return "", "", err
+	}
+	return result.Dir, result.Path, nil
+}
 
 func foundPkg(dir string) (string /*dir*/, string /*mod*/, error) {
 	pkg := ""
@@ -79,11 +108,16 @@ func Do(plugin *plugin.Plugin, context *cli.Context) error {
 		moduleDir string
 		err       error
 	)
-	if moduleDir, module, err = foundPkg(plugin.Dir); nil != err {
-		return err
+	//go list -json -m
+	if moduleDir, module, err = foundPkgFromCommand(context.Context, plugin.ApiFilePath); nil != err {
+		//found go.mod
+		if moduleDir, module, err = foundPkg(plugin.Dir); nil != err {
+			fmt.Printf("found error:%s", err.Error())
+			return err
+		}
 	}
 	//parse package
-	// windows=\\
+	// windows=\\ unix=/
 	client.Pkg = module + path.Join(strings.ReplaceAll(strings.ReplaceAll(plugin.Dir, moduleDir, ""), "\\", "/"), client.Package)
 	return mr.Finish(func() error {
 		//build types

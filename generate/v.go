@@ -39,6 +39,13 @@ type (
 		Pkg          string
 		Date         string
 	}
+	JSONListResult struct {
+		Path      string `json:"Path"`
+		Main      bool   `json:"Main"`
+		Dir       string `json:"Dir"`
+		GoMod     string `json:"GoMod"`
+		GoVersion string `json:"GoVersion"`
+	}
 )
 
 const Version = "v0.0.3"
