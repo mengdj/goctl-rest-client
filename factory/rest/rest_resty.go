@@ -31,17 +31,6 @@ type (
 	}
 )
 
-const (
-	pathKey   = "path"
-	formKey   = "form"
-	headerKey = "header"
-	jsonKey   = "json"
-	slash     = "/"
-	colon     = ':'
-
-	traceName = "gozero-rest-client"
-)
-
 func (rds *restResty) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
 	var (
 		rertyR    = rds.client.R().SetContext(ctx)

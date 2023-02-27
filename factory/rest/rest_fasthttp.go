@@ -33,6 +33,7 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{
 		//clear
 		request.Reset()
 		response.Reset()
+		//release
 		fasthttp.ReleaseRequest(request)
 		fasthttp.ReleaseResponse(response)
 	}()
