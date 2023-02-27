@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"runtime"
-
 	"github.com/mengdj/goctl-rest-client/generate"
 	"github.com/urfave/cli/v2"
 	"github.com/zeromicro/go-zero/tools/goctl/plugin"
+	"os"
+	"runtime"
 )
 
 var (

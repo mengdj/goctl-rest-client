@@ -32,7 +32,12 @@ type (
 	HttpcConf struct {
 	}
 	FastHttpConf struct {
-		Header map[string]string `json:",optional"`
+		Header              map[string]string `json:",optional"`
+		ReadTimeout         int64             `json:",default=10"` //seconds
+		MaxConnWaitTimeout  int64             `json:",default=0"`
+		WriteTimeout        int               `json:",default=0"`
+		MaxConnDuration     int               `json:",default=0"`
+		MaxIdleConnDuration int               `json:",default=0"`
 	}
 	RestyConf struct {
 		Header                map[string]string `json:",optional"`

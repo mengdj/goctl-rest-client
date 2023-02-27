@@ -83,6 +83,7 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{
 	}
 	body = response.Body()
 	if nil != resp {
+		//parse result
 		if err = jsonx.Unmarshal(body, resp); nil != err {
 			return nil, err
 		}
@@ -106,9 +107,14 @@ func NewRestFastHttp(name string, cnf conf.TransferConf, opts ...RestOption) Res
 		cnf:  cnf.Fasthttp,
 		name: name,
 		client: &fasthttp.Client{
-			Name:      name,
-			Dial:      dial.Dial,
-			TLSConfig: &tls.Config{InsecureSkipVerify: true},
+			Name:                name,
+			Dial:                dial.Dial,
+			ReadTimeout:         time.Duration(cnf.Fasthttp.ReadTimeout) * time.Second,
+			MaxConnWaitTimeout:  time.Duration(cnf.Fasthttp.MaxConnWaitTimeout) * time.Second,
+			WriteTimeout:        time.Duration(cnf.Fasthttp.WriteTimeout) * time.Second,
+			MaxConnDuration:     time.Duration(cnf.Fasthttp.MaxConnDuration) * time.Second,
+			MaxIdleConnDuration: time.Duration(cnf.Fasthttp.MaxIdleConnDuration) * time.Second,
+			TLSConfig:           &tls.Config{InsecureSkipVerify: true},
 		},
 	}
 	for _, opt := range opts {
