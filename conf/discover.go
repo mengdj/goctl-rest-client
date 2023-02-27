@@ -6,24 +6,27 @@ import (
 	"github.com/zeromicro/zero-contrib/zrpc/registry/consul"
 )
 
+//go:generate fieldalignment -fix discover.go
+
 type (
 	DiscoverClientConf struct {
+		Transfer TransferConf    `json:",optional"`
+		Consul   consul.Conf     `json:",optional"`
 		Name     string          `json:",optional"`
+		Resolver string          `json:"Resolver"`             //resolver[etcd,consul,endpoint]
+		Balancer string          `json:",default=round-robin"` //round-robin,random,power of 2 random choice,consistent hash,consistent hash with bounded,ip-hash,least-load
+		Etcd     discov.EtcdConf `json:",optional"`
 		Hosts    []string        `json:",optional"`
-		Etcd     discov.EtcdConf `json:",optional"` //etcd
-		Consul   consul.Conf     `json:",optional"` //consul
-		Resolver string          `json:"Resolver"`  //resolver[etcd,consul,endpoint]
-		Transfer TransferConf    `json:",optional"` //transfer[httpc,resty]
 		TLS      bool            `json:",default=false"`
 	}
 	DiscoverServerConf struct {
-		rest.RestConf
 		DiscoverClientConf
+		rest.RestConf
 	}
 	TransferConf struct {
-		Type     string       `json:",default=fasthttp"` //httpc,resty
-		Resty    RestyConf    `json:",optional"`
 		Fasthttp FastHttpConf `json:",optional"`
+		Resty    RestyConf    `json:",optional"`
+		Type     string       `json:",default=fasthttp"`
 	}
 
 	HttpcConf struct {
@@ -32,12 +35,12 @@ type (
 		Header map[string]string `json:",optional"`
 	}
 	RestyConf struct {
-		Agent                 string            `json:",optional"` //浏览器代理
-		AllowGetMethodPayload bool              `json:",default=false"`
-		Token                 string            `json:",optional"`
-		Debug                 bool              `json:",default=false"`
-		Timeout               int64             `json:",default=0"`
 		Header                map[string]string `json:",optional"`
+		Agent                 string            `json:",optional"`
+		Token                 string            `json:",optional"`
+		Timeout               int64             `json:",default=0"`
+		AllowGetMethodPayload bool              `json:",default=false"`
+		Debug                 bool              `json:",default=false"`
 		Trace                 bool              `json:",default=false"`
 	}
 )
