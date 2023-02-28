@@ -3,7 +3,6 @@ package generate
 import (
 	"context"
 	_ "embed"
-	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
@@ -48,7 +47,7 @@ func foundPkgFromCommand(ctx context.Context, path string) (string /*dir*/, stri
 	}
 	//parse
 	result = &JSONListResult{}
-	if err = json.Unmarshal(body, result); nil != err {
+	if err = result.UnmarshalJSON(body); nil != err {
 		return "", "", err
 	}
 	return result.Dir, result.Path, nil

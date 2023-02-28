@@ -2,7 +2,9 @@ package generate
 
 import "github.com/zeromicro/go-zero/tools/goctl/api/spec"
 
-//go:generate fieldalignment -fix v.go
+// //go:generate fieldalignment -fix v.go
+//
+//go:generate easyjson  v.go
 type (
 	Method struct {
 		Name     string
@@ -39,6 +41,7 @@ type (
 		Pkg          string
 		Date         string
 	}
+	//easyjson:json
 	JSONListResult struct {
 		Path      string `json:"Path"`
 		Main      bool   `json:"Main"`
