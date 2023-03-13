@@ -22,3 +22,19 @@ type (
 		Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error)
 	}
 )
+
+func WithContextPath(path string) RestOption {
+	return func(v interface{}) {
+		switch vv := v.(type) {
+		case *restFastHttp:
+			vv.contextPath = path
+			break
+		case *restHttpc:
+			vv.contextPath = path
+			break
+		case *restResty:
+			vv.contextPath = path
+			break
+		}
+	}
+}

@@ -10,14 +10,15 @@ import (
 
 type (
 	DiscoverClientConf struct {
-		Transfer TransferConf    `json:",optional"`
-		Consul   consul.Conf     `json:",optional"`
-		Name     string          `json:",optional"`
-		Resolver string          `json:"Resolver"`             //resolver[etcd,consul,endpoint]
-		Balancer string          `json:",default=round-robin"` //round-robin,random,power of 2 random choice,consistent hash,consistent hash with bounded,ip-hash,least-load
-		Etcd     discov.EtcdConf `json:",optional"`
-		Hosts    []string        `json:",optional"`
-		TLS      bool            `json:",default=false"`
+		Transfer    TransferConf    `json:",optional"`
+		Consul      consul.Conf     `json:",optional"`
+		Name        string          `json:",optional"`
+		Resolver    string          `json:"Resolver"`             //resolver[etcd,consul,endpoint]
+		Balancer    string          `json:",default=round-robin"` //round-robin,random,power of 2 random choice,consistent hash,consistent hash with bounded,ip-hash,least-load
+		Etcd        discov.EtcdConf `json:",optional"`
+		Hosts       []string        `json:",optional"`
+		TLS         bool            `json:",default=false"`
+		ContextPath string          `json:",optional"` //url context path
 	}
 	DiscoverServerConf struct {
 		DiscoverClientConf

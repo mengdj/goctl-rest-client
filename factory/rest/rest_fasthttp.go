@@ -14,10 +14,11 @@ import (
 )
 
 type restFastHttp struct {
-	name    string
-	client  *fasthttp.Client
-	cnf     conf.FastHttpConf
-	retryIf fasthttp.RetryIfFunc
+	name        string
+	contextPath string
+	client      *fasthttp.Client
+	cnf         conf.FastHttpConf
+	retryIf     fasthttp.RetryIfFunc
 }
 
 func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
@@ -37,6 +38,9 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{
 		fasthttp.ReleaseRequest(request)
 		fasthttp.ReleaseResponse(response)
 	}()
+	if "" != r.contextPath {
+		url = r.contextPath + url
+	}
 	if purl, err = nurl.Parse(url); err != nil {
 		return nil, err
 	}
