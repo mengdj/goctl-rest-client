@@ -31,6 +31,7 @@ type (
 		rwMutex     sync.RWMutex
 		subscriber  subscriber2.Subscriber
 		destination string
+		contextPath string
 	}
 )
 
@@ -54,9 +55,6 @@ func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts .
 		//default
 		c.Name = uuid.NewString()
 	}
-	if c.ContextPath != "" {
-		opts = append(opts, rest.WithContextPath(c.ContextPath))
-	}
 	if c.Transfer.Type == "resty" {
 		transfer = rest.NewRestResty(c.Name, c.Transfer, opts...)
 	} else if c.Transfer.Type == "fasthttp" {
@@ -76,6 +74,7 @@ func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientC
 			service:     s,
 			subscriber:  nil,
 			destination: destination,
+			contextPath: c.ContextPath, //add
 		}
 		switch c.Resolver {
 		case "etcd":
@@ -91,7 +90,6 @@ func NewRestDiscoverClientWithService(destination string, c conf.DiscoverClientC
 			restDiscoverClientInstance.subscriber = subscriber2.NewSubscriberConsul(c)
 			break
 		case "endpoint":
-			//直连
 			if 0 == len(c.Hosts) {
 				c.Hosts = []string{
 					destination,
@@ -117,10 +115,12 @@ func (f *restDiscoverClient) Invoke(ctx context.Context, method string, path str
 	if host, err = f.subscriber.GetHost(); nil == err {
 		urls.WriteString(f.subscriber.Scheme())
 		urls.WriteString(host)
+		urls.WriteString(f.contextPath)
 		urls.WriteString(path)
 	} else {
 		//default
 		urls.WriteString(f.destination)
+		urls.WriteString(f.contextPath)
 		urls.WriteString(path)
 	}
 	//execute

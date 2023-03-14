@@ -25,10 +25,9 @@ import (
 
 type (
 	restResty struct {
-		client      *resty.Client
-		name        string
-		trace       bool
-		contextPath string
+		client *resty.Client
+		name   string
+		trace  bool
 	}
 )
 
@@ -41,7 +40,7 @@ func (rds *restResty) Do(ctx context.Context, method, url string, req interface{
 		val       map[string]map[string]interface{}
 		span      oteltrace.Span
 	)
-	if purl, err = nurl.Parse(rds.contextPath + url); err != nil {
+	if purl, err = nurl.Parse(url); err != nil {
 		return nil, err
 	}
 	if req != nil {

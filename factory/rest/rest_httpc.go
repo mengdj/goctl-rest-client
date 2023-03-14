@@ -19,7 +19,6 @@ type (
 	restHttpc          struct {
 		httpc.Service
 		beforeRequest HttpcBeforeRequest
-		contextPath   string
 	}
 )
 
@@ -28,9 +27,6 @@ func (rds *restHttpc) Do(ctx context.Context, method, url string, req interface{
 		response *http.Response
 		err      error
 	)
-	if "" != rds.contextPath {
-		url = rds.contextPath + url
-	}
 	if nil != rds.Service {
 		//before
 		if req, err = rds.beforeRequest(ctx, url, req); nil != err {
