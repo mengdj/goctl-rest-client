@@ -3,11 +3,18 @@ syntax = "v1"
 import(
     "types.api"
 )
+
+type(
+    WorldRequest {
+        ID   uint64 `json:"id,optional" path:"id"` //系统方案ID
+        More string `json:",optional"`             //测试
+    }
+)
 @server(
     group: world
     timeout: 30s
 )
 service test_api {
     @handler Hello
-    get /api/v1/app/test/world/:id (HelloRequest) returns (Response)
+    get /api/v1/app/test/world/:id (WorldRequest) returns (Response)
 }
