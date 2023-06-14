@@ -1,12 +1,14 @@
 package generate
 
 import (
+	"bytes"
 	"context"
 	_ "embed"
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"github.com/zeromicro/go-zero/core/mr"
+	"github.com/zeromicro/go-zero/tools/goctl/util/pathx"
 	"os"
 	"os/exec"
 	"path"
@@ -14,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bits-and-blooms/bloom/v3"
 	"github.com/zeromicro/go-zero/tools/goctl/api/spec"
 	"github.com/zeromicro/go-zero/tools/goctl/plugin"
 	"golang.org/x/mod/modfile"
@@ -117,20 +120,45 @@ func Do(plugin *plugin.Plugin, context *cli.Context) error {
 	}
 	//parse package
 	// windows=\\ unix=/
+	// fix 多个包时types只保留最后一个文件
 	client.Pkg = module + path.Join(strings.ReplaceAll(strings.ReplaceAll(plugin.Dir, moduleDir, ""), "\\", "/"), client.Package)
 	return mr.Finish(func() error {
+		var (
+			dir         = path.Join(plugin.Dir, client.Package)
+			typesGo     = path.Join(dir, "types.go")
+			cachesGo    = path.Join(dir, "caches")
+			bloomFilter = bloom.NewWithEstimates(4096, 0.01) //max
+		)
+		defer func() {
+			buff := bytes.NewBuffer([]byte{})
+			if n, e := bloomFilter.WriteTo(buff); nil == e && n > 0 {
+				_ = os.WriteFile(cachesGo, buff.Bytes(), regularPerm)
+			}
+		}()
+		if pathx.FileExists(cachesGo) {
+			bd, be := os.ReadFile(cachesGo)
+			if nil != be {
+				return be
+			}
+			if _, be = bloomFilter.ReadFrom(bytes.NewBuffer(bd)); nil != be {
+				return be
+			}
+		}
 		//build types
 		for i := 0; i < typeSize; i++ {
 			if target, ok := plugin.Api.Types[i].(spec.DefineStruct); ok {
-				client.Type = append(client.Type, target)
+				if !bloomFilter.TestString(target.RawName) {
+					//fix 多个文件时types会又重复定义问题
+					bloomFilter.AddString(target.RawName)
+					client.Type = append(client.Type, target)
+				}
 			}
 		}
-		dir := path.Join(plugin.Dir, client.Package)
-		if err := os.MkdirAll(dir, os.ModeDir|os.ModePerm); nil != err {
-			return err
+		if errx := os.MkdirAll(dir, os.ModeDir|os.ModePerm); nil != errx {
+			return errx
 		}
 		//build types
-		return With("types").Parse(typesTpl).GoFmt(true).SaveTo(client, path.Join(dir, "types.go"), true)
+		return With("types").Parse(typesTpl).GoFmt(true).SaveTo(client, typesGo, true, true)
 	}, func() error {
 		//build groups
 		for i := 0; i < groupSize; i++ {
@@ -154,7 +182,7 @@ func Do(plugin *plugin.Plugin, context *cli.Context) error {
 			if nil != err {
 				return err
 			}
-			if err = With(client.GroupPackage).Parse(clientsTpl).GoFmt(true).SaveTo(client, path.Join(dir, client.File), true); nil != err {
+			if err = With(client.GroupPackage).Parse(clientsTpl).GoFmt(true).SaveTo(client, path.Join(dir, client.File), true, false); nil != err {
 				return err
 			}
 			client.Route = client.Route[0:0]

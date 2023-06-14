@@ -40,6 +40,7 @@ type (
 		Type         []spec.DefineStruct
 		Pkg          string
 		Date         string
+		Mode         string
 	}
 	//easyjson:json
 	JSONListResult struct {
@@ -51,4 +52,4 @@ type (
 	}
 )
 
-const Version = "v0.0.6"
+const Version = "v0.0.8"
