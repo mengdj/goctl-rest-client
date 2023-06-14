@@ -40,6 +40,7 @@ type (
 		Type         []spec.DefineStruct
 		Pkg          string
 		Date         string
+		Mode         string
 	}
 	//easyjson:json
 	JSONListResult struct {
