@@ -8,7 +8,7 @@ package factory
 
 import "context"
 
-const prefixRestClientHeader = "rest-client"
+const PrefixRestClientHeader = "rest-client-"
 
 type iface struct {
 	itab, data uintptr
@@ -20,3 +20,5 @@ type valueCtx struct {
 	context.Context
 	key, val interface{}
 }
+
+type EnableContextTransfer struct{}

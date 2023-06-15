@@ -32,7 +32,6 @@ func (rds *restHttpc) Do(ctx context.Context, method, url string, req interface{
 		url = rds.contextPath + url
 	}
 	if nil != rds.Service {
-		//before
 		if req, err = rds.beforeRequest(ctx, url, req); nil != err {
 			return nil, err
 		}
@@ -41,7 +40,6 @@ func (rds *restHttpc) Do(ctx context.Context, method, url string, req interface{
 		return nil, err
 	}
 	if nil != resp {
-		//json
 		if err = jsonx.UnmarshalFromReader(response.Body, resp); nil != err {
 			return nil, err
 		}
@@ -53,6 +51,7 @@ func (rds *restHttpc) Do(ctx context.Context, method, url string, req interface{
 }
 
 func (rds *restHttpc) DoRequest(r *http.Request) (*http.Response, error) {
+
 	return rds.Service.DoRequest(r)
 }
 

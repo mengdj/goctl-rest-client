@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/mengdj/goctl-rest-client/conf"
+	"github.com/mengdj/goctl-rest-client/factory"
+	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/breaker"
 	"github.com/zeromicro/go-zero/core/mapping"
 	"go.opentelemetry.io/otel"
@@ -43,6 +45,16 @@ func (rds *restResty) Do(ctx context.Context, method, url string, req interface{
 	)
 	if purl, err = nurl.Parse(rds.contextPath + url); err != nil {
 		return nil, err
+	}
+	// 0.0.9 新增context传递参数,key必须为string
+	if ctx.Value(factory.EnableContextTransfer{}) != nil {
+		if ctxkv := factory.GetKeyValueFromContext(ctx); len(ctxkv) > 0 {
+			for k, v := range ctxkv {
+				if name, ok := k.(string); ok {
+					rertyR.SetHeader(factory.PrefixRestClientHeader+name, cast.ToString(v))
+				}
+			}
+		}
 	}
 	if req != nil {
 		if val, err = mapping.Marshal(req); err != nil {

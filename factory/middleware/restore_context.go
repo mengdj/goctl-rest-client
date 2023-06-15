@@ -6,7 +6,12 @@
 // @author: mengdj<mengdj@outlook.com>
 package middleware
 
-import "net/http"
+import (
+	"context"
+	"github.com/mengdj/goctl-rest-client/factory"
+	"net/http"
+	"strings"
+)
 
 type restoreContext struct {
 }
@@ -17,6 +22,15 @@ func GetRestoreContext() *restoreContext {
 
 func (rc *restoreContext) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		next(writer, request)
+		ctx := request.Context()
+		for k, v := range request.Header {
+			if strings.HasPrefix(k, factory.PrefixRestClientHeader) {
+				if len(v) == 1 {
+					//prefix rest-client-
+					ctx = context.WithValue(ctx, k, v[0])
+				}
+			}
+		}
+		next(writer, request.WithContext(ctx))
 	}
 }

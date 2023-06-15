@@ -24,7 +24,6 @@ func buildFormQuery(u *nurl.URL, val map[string]interface{}) nurl.Values {
 func fillPath(u *nurl.URL, val map[string]interface{}) error {
 	used := make(map[string]lang.PlaceholderType)
 	fields := strings.Split(u.Path, slash)
-
 	for i := range fields {
 		field := fields[i]
 		if len(field) > 0 && field[0] == colon {
@@ -41,20 +40,17 @@ func fillPath(u *nurl.URL, val map[string]interface{}) error {
 			used[name] = lang.Placeholder
 		}
 	}
-
+	//
 	if len(val) != len(used) {
 		for key := range used {
 			delete(val, key)
 		}
-
 		var unused []string
 		for key := range val {
 			unused = append(unused, key)
 		}
-
 		return fmt.Errorf("more path variables are provided: %q", strings.Join(unused, ", "))
 	}
-
 	u.Path = strings.Join(fields, slash)
 	return nil
 }
