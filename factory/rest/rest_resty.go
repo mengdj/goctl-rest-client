@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/mengdj/goctl-rest-client/conf"
-	"github.com/mengdj/goctl-rest-client/factory/utility"
+	"github.com/mengdj/goctl-rest-client/utility"
 	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/breaker"
 	"github.com/zeromicro/go-zero/core/mapping"

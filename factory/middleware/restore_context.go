@@ -8,7 +8,7 @@ package middleware
 
 import (
 	"context"
-	"github.com/mengdj/goctl-rest-client/factory/utility"
+	"github.com/mengdj/goctl-rest-client/utility"
 	"net/http"
 	"strings"
 )

@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/mengdj/goctl-rest-client/conf"
-	"github.com/mengdj/goctl-rest-client/factory/utility"
+	"github.com/mengdj/goctl-rest-client/utility"
 	"github.com/spf13/cast"
 	"github.com/valyala/fasthttp"
 	"github.com/zeromicro/go-zero/core/jsonx"
