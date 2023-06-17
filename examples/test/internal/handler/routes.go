@@ -20,7 +20,8 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/api/v1/app/test/hello/:id",
 				Handler: hello.HelloHandler(serverCtx),
 			},
-		}, rest.WithTimeout(30000*time.Millisecond),
+		},
+		rest.WithTimeout(30000*time.Millisecond),
 	)
 
 	server.AddRoutes(
@@ -30,6 +31,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/api/v1/app/test/world/:id",
 				Handler: world.HelloHandler(serverCtx),
 			},
-		}, rest.WithTimeout(30000*time.Millisecond),
+		},
+		rest.WithTimeout(30000*time.Millisecond),
 	)
 }
