@@ -48,6 +48,7 @@ func (rds *restResty) Do(ctx context.Context, method, url string, req interface{
 	}
 	// 0.0.9 新增context传递参数,key必须为string
 	if ctx.Value(utility.EnableContextTransfer{}) != nil {
+		//
 		if ctxkv := utility.GetKeyValueFromContext(ctx); len(ctxkv) > 0 {
 			for k, v := range ctxkv {
 				if name, ok := k.(string); ok {
