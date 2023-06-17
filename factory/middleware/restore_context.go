@@ -8,7 +8,7 @@ package middleware
 
 import (
 	"context"
-	"github.com/mengdj/goctl-rest-client/factory"
+	"github.com/mengdj/goctl-rest-client/factory/utility"
 	"net/http"
 	"strings"
 )
@@ -24,7 +24,7 @@ func (rc *restoreContext) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		ctx := request.Context()
 		for k, v := range request.Header {
-			if strings.HasPrefix(k, factory.PrefixRestClientHeader) {
+			if strings.HasPrefix(k, utility.PrefixRestClientHeader) {
 				if len(v) == 1 {
 					//prefix rest-client-
 					ctx = context.WithValue(ctx, k, v[0])

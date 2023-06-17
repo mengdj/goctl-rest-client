@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/mengdj/goctl-rest-client/conf"
-	"github.com/mengdj/goctl-rest-client/factory"
+	"github.com/mengdj/goctl-rest-client/factory/utility"
 	"github.com/spf13/cast"
 	"github.com/valyala/fasthttp"
 	"github.com/zeromicro/go-zero/core/jsonx"
@@ -45,11 +45,11 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{
 	//method
 	request.Header.SetMethod(method)
 	// 0.0.9 新增context传递参数,key必须为string
-	if ctx.Value(factory.EnableContextTransfer{}) != nil {
-		if ctxkv := factory.GetKeyValueFromContext(ctx); len(ctxkv) > 0 {
+	if ctx.Value(utility.EnableContextTransfer{}) != nil {
+		if ctxkv := utility.GetKeyValueFromContext(ctx); len(ctxkv) > 0 {
 			for k, v := range ctxkv {
 				if name, ok := k.(string); ok {
-					request.Header.Set(factory.PrefixRestClientHeader+name, cast.ToString(v))
+					request.Header.Set(utility.PrefixRestClientHeader+name, cast.ToString(v))
 				}
 			}
 		}
@@ -119,7 +119,6 @@ func WithRetryIf(fn fasthttp.RetryIfFunc) RestOption {
 	}
 }
 func NewRestFastHttp(name string, cnf conf.TransferConf, opts ...RestOption) RestService {
-	//init
 	dial := &fasthttp.TCPDialer{
 		Concurrency:      cnf.Fasthttp.TCPDialer.Concurrency,                                   //
 		DNSCacheDuration: time.Duration(cnf.Fasthttp.TCPDialer.DNSCacheDuration) * time.Second, //
