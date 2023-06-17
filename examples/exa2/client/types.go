@@ -103,3 +103,9 @@ func (t *HelloRequest) GetMsg() string {
 
 //begin
 type ()
+
+//begin
+type ()
+
+//begin
+type ()

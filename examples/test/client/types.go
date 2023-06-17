@@ -90,3 +90,90 @@ func (t *WorldRequest) SetMore(v string) *WorldRequest {
 func (t *WorldRequest) GetMore() string {
 	return t.More
 }
+
+//begin
+type (
+	HelloRequest struct {
+		ID   uint64 `json:"id,optional" path:"id"` //系统方案ID
+		More string `json:",optional"`             //测试
+	}
+
+	Response struct {
+		Code uint32 `json:"code"`
+		Msg  string `json:"msg"`
+	}
+
+	WorldRequest struct {
+		ID   uint64 `json:"id,optional" path:"id"` //系统方案ID
+		More string `json:",optional"`             //测试
+	}
+)
+
+func (t *HelloRequest) Reset() {
+	*t = HelloRequest{}
+}
+
+func (t *HelloRequest) SetID(v uint64) *HelloRequest {
+	t.ID = v
+	return t
+}
+
+func (t *HelloRequest) GetID() uint64 {
+	return t.ID
+}
+
+func (t *HelloRequest) SetMore(v string) *HelloRequest {
+	t.More = v
+	return t
+}
+
+func (t *HelloRequest) GetMore() string {
+	return t.More
+}
+
+func (t *Response) Reset() {
+	*t = Response{}
+}
+
+func (t *Response) SetCode(v uint32) *Response {
+	t.Code = v
+	return t
+}
+
+func (t *Response) GetCode() uint32 {
+	return t.Code
+}
+
+func (t *Response) SetMsg(v string) *Response {
+	t.Msg = v
+	return t
+}
+
+func (t *Response) GetMsg() string {
+	return t.Msg
+}
+
+func (t *WorldRequest) Reset() {
+	*t = WorldRequest{}
+}
+
+func (t *WorldRequest) SetID(v uint64) *WorldRequest {
+	t.ID = v
+	return t
+}
+
+func (t *WorldRequest) GetID() uint64 {
+	return t.ID
+}
+
+func (t *WorldRequest) SetMore(v string) *WorldRequest {
+	t.More = v
+	return t
+}
+
+func (t *WorldRequest) GetMore() string {
+	return t.More
+}
+
+//begin
+type ()
