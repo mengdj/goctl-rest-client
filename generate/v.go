@@ -52,4 +52,4 @@ type (
 	}
 )
 
-const Version = "v0.0.9"
+const Version = "v0.1.0"

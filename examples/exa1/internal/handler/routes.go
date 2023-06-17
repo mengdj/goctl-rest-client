@@ -19,6 +19,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/api/v1/app/demo/hello",
 				Handler: exa.HelloHandler(serverCtx),
 			},
-		}, rest.WithTimeout(30000*time.Millisecond),
+		},
+		rest.WithTimeout(30000*time.Millisecond),
 	)
 }

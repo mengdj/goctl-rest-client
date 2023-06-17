@@ -4,12 +4,27 @@
 // @date: 02/23/2023
 // @version:1.0.0
 // @author: mengdj<mengdj@outlook.com>
-package factory
+package utility
 
 import (
 	"context"
 	"unsafe"
 )
+
+const PrefixRestClientHeader = "rest-client-"
+
+type iface struct {
+	itab, data uintptr
+}
+
+type emptyCtx int
+
+type valueCtx struct {
+	context.Context
+	key, val interface{}
+}
+
+type EnableContextTransfer struct{}
 
 func GetKeyValueFromContext(ctx context.Context) map[interface{}]interface{} {
 	m := make(map[interface{}]interface{})

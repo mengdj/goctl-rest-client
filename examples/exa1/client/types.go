@@ -57,3 +57,60 @@ func (t *HelloRequest) SetMsg(v string) *HelloRequest {
 func (t *HelloRequest) GetMsg() string {
 	return t.Msg
 }
+
+//begin
+type (
+
+	//aa
+	Response struct {
+		//aa
+		Code uint32 `json:"code"` //cc
+		Msg  string `json:"msg"`
+	}
+	//xxx
+	HelloRequest struct {
+		//xxx
+		Msg string `json:"msg"` //回显消息
+	}
+)
+
+func (t *Response) Reset() {
+	*t = Response{}
+}
+
+func (t *Response) SetCode(v uint32) *Response {
+	t.Code = v
+	return t
+}
+
+func (t *Response) GetCode() uint32 {
+	return t.Code
+}
+
+func (t *Response) SetMsg(v string) *Response {
+	t.Msg = v
+	return t
+}
+
+func (t *Response) GetMsg() string {
+	return t.Msg
+}
+
+func (t *HelloRequest) Reset() {
+	*t = HelloRequest{}
+}
+
+func (t *HelloRequest) SetMsg(v string) *HelloRequest {
+	t.Msg = v
+	return t
+}
+
+func (t *HelloRequest) GetMsg() string {
+	return t.Msg
+}
+
+//begin
+type ()
+
+//begin
+type ()
