@@ -18,7 +18,7 @@ HelloDiscoverConf:
     InsecureSkipVerify: true
   TLS: false
   Hosts:
-    - "192.168.10.30:7000"
+    #- "192.168.10.30:7000"
     - "192.168.10.30:7001"
   Resolver: endpoint
   Transfer:

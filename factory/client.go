@@ -8,6 +8,7 @@ package factory
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/mengdj/goctl-rest-client/conf"
 	"github.com/mengdj/goctl-rest-client/factory/rest"
@@ -111,6 +112,7 @@ func (f *restDiscoverClient) Invoke(ctx context.Context, method string, path str
 		host = ""
 		err  error
 		urls strings.Builder
+		tar  string
 	)
 	if host, err = f.subscriber.GetHost(); nil == err {
 		urls.WriteString(f.subscriber.Scheme())
@@ -123,15 +125,15 @@ func (f *restDiscoverClient) Invoke(ctx context.Context, method string, path str
 		urls.WriteString(f.contextPath)
 		urls.WriteString(path)
 	}
-	//execute
+	tar = urls.String()
 	if _, err = f.service.Do(
 		ctx,
 		method,
-		urls.String(),
+		tar,
 		data,
 		result,
 	); nil != err {
-		return err
+		return fmt.Errorf("%s(%s)", tar, err.Error())
 	}
 	return nil
 }
