@@ -10,6 +10,7 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"github.com/zeromicro/go-zero/rest/httpc"
+	"io"
 	"net/http"
 )
 
@@ -19,13 +20,19 @@ type (
 	restHttpc          struct {
 		httpc.Service
 		beforeRequest HttpcBeforeRequest
+		errorHandler  ErrorHandler
 	}
 )
+
+func (rds *restHttpc) SetErrorHandler(fn ErrorHandler) {
+	rds.errorHandler = fn
+}
 
 func (rds *restHttpc) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
 	var (
 		response *http.Response
 		err      error
+		body     []byte
 	)
 	if nil != rds.Service {
 		if req, err = rds.beforeRequest(ctx, url, req); nil != err {
@@ -35,8 +42,17 @@ func (rds *restHttpc) Do(ctx context.Context, method, url string, req interface{
 	if response, err = rds.Service.Do(ctx, method, url, req); nil != err {
 		return nil, err
 	}
+	if body, err = io.ReadAll(response.Body); nil != err {
+		return nil, err
+	}
+	//0.1.3 add error
+	if nil != rds.errorHandler {
+		if err = rds.errorHandler(response.StatusCode, body); nil != err {
+			return nil, err
+		}
+	}
 	if nil != resp {
-		if err = jsonx.UnmarshalFromReader(response.Body, resp); nil != err {
+		if err = jsonx.Unmarshal(body, resp); nil != err {
 			return nil, err
 		}
 	}

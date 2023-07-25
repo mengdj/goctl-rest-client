@@ -16,13 +16,18 @@ import (
 )
 
 type restFastHttp struct {
-	name    string
-	client  *fasthttp.Client
-	cnf     conf.FastHttpConf
-	retryIf fasthttp.RetryIfFunc
+	name         string
+	client       *fasthttp.Client
+	cnf          conf.FastHttpConf
+	retryIf      fasthttp.RetryIfFunc
+	errorHandler ErrorHandler
 }
 
-func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
+func (rds *restFastHttp) SetErrorHandler(errorHandler ErrorHandler) {
+	rds.errorHandler = errorHandler
+}
+
+func (r *restFastHttp) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
 	var (
 		request  = fasthttp.AcquireRequest()
 		response = fasthttp.AcquireResponse()
@@ -96,6 +101,12 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{
 		return nil, err
 	}
 	body = response.Body()
+	//0.1.3 add error
+	if nil != r.errorHandler {
+		if err = r.errorHandler(response.StatusCode(), body); nil != err {
+			return nil, err
+		}
+	}
 	if nil != resp {
 		//parse result
 		if err = jsonx.Unmarshal(body, resp); nil != err {
@@ -107,7 +118,7 @@ func (r restFastHttp) Do(ctx context.Context, method, url string, req interface{
 	}, nil
 }
 
-func (r restFastHttp) DoRequest(req *http.Request) (*http.Response, error) {
+func (r *restFastHttp) DoRequest(req *http.Request) (*http.Response, error) {
 	return nil, NotSupport
 }
 

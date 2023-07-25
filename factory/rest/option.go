@@ -8,5 +8,6 @@ package rest
 
 type (
 	// RestOption any
-	RestOption func(v interface{})
+	RestOption   func(v interface{})
+	ErrorHandler func(status int, body []byte) error
 )

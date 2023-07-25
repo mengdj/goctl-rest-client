@@ -27,11 +27,16 @@ import (
 
 type (
 	restResty struct {
-		client *resty.Client
-		name   string
-		trace  bool
+		client       *resty.Client
+		name         string
+		trace        bool
+		errorHandler ErrorHandler
 	}
 )
+
+func (rds *restResty) SetErrorHandler(fn ErrorHandler) {
+	rds.errorHandler = fn
+}
 
 func (rds *restResty) Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error) {
 	var (
@@ -115,6 +120,12 @@ func (rds *restResty) Do(ctx context.Context, method, url string, req interface{
 	if rds.trace {
 		span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(rertyP.StatusCode())...)
 		span.SetStatus(semconv.SpanStatusFromHTTPStatusCodeAndSpanKind(rertyP.StatusCode(), oteltrace.SpanKindClient))
+	}
+	//0.1.3 add error
+	if nil != rds.errorHandler {
+		if errx = rds.errorHandler(rertyP.StatusCode(), rertyP.Body()); nil != errx {
+			return nil, errx
+		}
 	}
 	return &RestResponse{
 		StatusCode: rertyP.StatusCode(),

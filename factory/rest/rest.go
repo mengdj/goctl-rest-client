@@ -16,9 +16,13 @@ type (
 	RestResponse struct {
 		Status     string // e.g. "200 OK"
 		StatusCode int    // e.g. 200
+		Body       []byte
 	}
 
 	RestService interface {
+		// Do invoke
 		Do(ctx context.Context, method, url string, req interface{}, resp interface{}) (*RestResponse, error)
+		// SetErrorHandler error handler
+		SetErrorHandler(fn ErrorHandler)
 	}
 )

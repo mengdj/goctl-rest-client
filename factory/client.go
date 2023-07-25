@@ -48,6 +48,15 @@ func (f *restDiscoverClient) Close() error {
 	return nil
 }
 
+// WithErrorHandler 错误处理
+func WithErrorHandler(fn func(status int, body []byte) error) rest.RestOption {
+	return func(v interface{}) {
+		if target, ok := v.(rest.RestService); ok {
+			target.SetErrorHandler(fn)
+		}
+	}
+}
+
 func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts ...rest.RestOption) Client {
 	var (
 		transfer rest.RestService = nil
@@ -64,6 +73,7 @@ func NewRestDiscoverClient(destination string, c conf.DiscoverClientConf, opts .
 		//default
 		transfer = rest.NewRestHttpc(c.Name, opts...)
 	}
+
 	return NewRestDiscoverClientWithService(destination, c, transfer)
 }
 
